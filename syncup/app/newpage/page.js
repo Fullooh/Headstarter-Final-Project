@@ -23,7 +23,7 @@ export default function NewPage() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-r from-green-500 to-blue-600 text-white">
       <section className="flex flex-col items-center justify-center flex-grow text-center p-8">
-        <h1 className="text-5xl font-bold mb-4 leading-tight">Swipeable Card Carousel</h1>
+        <h1 className="text-5xl font-bold mb-4 leading-tight">SyncUp</h1>
         <p className="text-lg mb-8">Click the arrows to navigate.</p>
 
         <div className="relative w-full max-w-lg">
