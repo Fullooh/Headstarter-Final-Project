@@ -72,25 +72,65 @@ export default function NewPage() {
       </section>
 
      {/* Filter Button */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4 text-black">Set Your Preferences</h3>
-            <form>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Age Range</label>
-                <input type="text" className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm text-gray-900" placeholder="20-30" />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Interests</label>
-                <input type="text" className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm text-gray-900" placeholder="e.g., Reading, Hiking" />
-              </div>
-              <button type="button" onClick={toggleModal} className="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded">Close</button>
-              <button type="submit" className="bg-blue-600 hover:bg-blue-800 text-white py-2 px-4 rounded float-right">Save Preferences</button>
-            </form>
-          </div>
+{isModalOpen && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div className="bg-white p-6 rounded-lg max-w-md w-full">
+      <h3 className="text-xl font-bold mb-4 text-black">Set Your Preferences</h3>
+      <form>
+        {/* Age Range */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Age Range</label>
+          <input type="text" className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm text-gray-900" placeholder="20-30" />
         </div>
-      )}
+
+        {/* Interests */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Interests</label>
+          <input type="text" className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm text-gray-900" placeholder="e.g., Reading, Hiking" />
+        </div>
+
+        {/* Coding Languages */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Coding Languages</label>
+          <input type="text" className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm text-gray-900" placeholder="e.g., Python, JavaScript" />
+        </div>
+
+        {/* Tech Niche */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Tech Niche</label>
+          <input type="text" className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm text-gray-900" placeholder="e.g., Web Development, Data Science" />
+        </div>
+
+        {/* Highest Degree Completed */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Highest Degree Completed</label>
+          <select className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm text-gray-900">
+            <option value="associate">Associate's Degree</option>
+            <option value="bachelor">Bachelor's Degree</option>
+            <option value="master">Master's Degree</option>
+            <option value="doctoral">Doctoral Degree</option>
+          </select>
+        </div>
+
+        {/* Role */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Role</label>
+          <select className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm text-gray-900">
+            <option value="frontend">Frontend Developer</option>
+            <option value="backend">Backend Developer</option>
+            <option value="analyst">Analyst</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        {/* Buttons */}
+        <button type="button" onClick={toggleModal} className="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded">Close</button>
+        <button type="submit" className="bg-blue-600 hover:bg-blue-800 text-white py-2 px-4 rounded float-right">Save Preferences</button>
+      </form>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
