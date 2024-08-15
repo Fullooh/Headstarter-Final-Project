@@ -38,6 +38,8 @@ export default function NewPage() {
     return <div>Loading profiles...</div>;
   }
 
+  const currentProfile = profiles[currentIndex];
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-r from-green-500 to-blue-600">
       <header className="w-full text-center py-8">
@@ -66,16 +68,33 @@ export default function NewPage() {
             <div>
               {/* Profile Image */}
               <img 
-                src={profiles[currentIndex].imageUrl} 
-                alt={profiles[currentIndex].name} 
+                src={currentProfile.imageUrl} 
+                alt={currentProfile.name} 
                 className="rounded-full h-32 w-32 mx-auto mb-4"
               />
               
               {/* Profile Name */}
-              <h2 className="text-3xl font-bold mb-4">{profiles[currentIndex].name}</h2>
+              <h2 className="text-3xl font-bold mb-4">{currentProfile.name}</h2>
               
               {/* Profile Description */}
-              <p>{profiles[currentIndex].description}</p>
+              <p className="text-lg mb-4">{currentProfile.description}</p>
+
+              {/* Age */}
+              <p className="text-lg mb-4">Age: {currentProfile.age}</p>
+
+              {/* Interests */}
+              <p className="text-lg mb-4">
+                Interests: {
+                  Array.isArray(currentProfile.interests)
+                    ? currentProfile.interests.map(interest => 
+                        interest.charAt(0).toUpperCase() + interest.slice(1)
+                      ).join(", ")
+                    : "No interests provided"
+                }
+              </p>
+
+              {/* Tech Niche */}
+              <p className="text-lg mb-4">Tech Niche: {currentProfile.techNiche || "No tech niche provided"}</p>
             </div>
 
             <button
