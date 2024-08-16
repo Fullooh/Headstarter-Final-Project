@@ -1,5 +1,5 @@
 // profileService.js
-import { firestore } from '../firebase'; // Import the firestore instance
+import { firestore } from './firebase'; // Import the firestore instance
 import { collection, getDocs } from 'firebase/firestore';
 
 // Function to fetch all user profiles from the "profiles" collection
