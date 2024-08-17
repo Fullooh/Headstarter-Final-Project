@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { collection, addDoc } from 'firebase/firestore';
-import { firestore } from '@/firebase'; // Adjust the path if needed
+import { firestore } from './services/firebase'; // Adjust the path if needed
 
 export default function Page() {
   const [email, setEmail] = useState('');

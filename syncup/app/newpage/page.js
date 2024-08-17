@@ -1,210 +1,117 @@
-"use client";
-import React, { useEffect, useState, useCallback } from 'react';
-import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
-import { firestore, storage } from '../../services/firebase'; // Import Firestore and Storage
-import { doc, setDoc } from "firebase/firestore";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"; // Import Storage functions
-import { motion } from 'framer-motion';
-import { fetchUserProfiles } from '../../services/profileService'; // Import the fetch function
-import { useDropzone } from 'react-dropzone';
+'use client';
+import React, { useEffect, useState } from 'react';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { fetchUserProfiles } from '../services/profileService'; 
+import { useRouter } from 'next/navigation'; 
 
 export default function NewPage() {
   const [user, setUser] = useState(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [age, setAge] = useState("");
-  const [interests, setInterests] = useState("");
-  const [description, setDescription] = useState("");
-  const [techNiche, setTechNiche] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
   const [profiles, setProfiles] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [uploading, setUploading] = useState(false); // To track file upload status
-
+  const [phraseIndex, setPhraseIndex] = useState(0); // Track rotating text index
   const auth = getAuth();
+  const router = useRouter();
+
+  const phrases = ["Team Up", "Code Together", "Conquer the Future"]; // Array of rotating phrases
 
   // Check if the user is authenticated
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
-        loadProfiles();
+        loadProfiles(); // Load profiles (now from the 'users' collection)
       } else {
-        setUser(null);
+        router.push('/register'); // Redirect to register if no user is logged in
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [auth, router]);
 
-  // Function to fetch profiles
+  // Function to fetch profiles from the 'users' collection
   const loadProfiles = async () => {
     try {
-      const fetchedProfiles = await fetchUserProfiles();
+      const fetchedProfiles = await fetchUserProfiles(); // Fetch from 'users'
       setProfiles(fetchedProfiles);
     } catch (error) {
       console.error("Error fetching profiles:", error);
     }
   };
 
-  // Function to handle file upload
-  const onDrop = useCallback((acceptedFiles) => {
-    const file = acceptedFiles[0];
-    if (!file) return;
-
-    setUploading(true);
-
-    // Upload the file to Firebase Storage
-    const storageRef = ref(storage, `profile_images/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        // Optional: Track upload progress
-      },
-      (error) => {
-        console.error("Error uploading file:", error);
-        setUploading(false);
-      },
-      () => {
-        // Get the download URL once upload completes
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setImageUrl(downloadURL);
-          setUploading(false);
-        });
-      }
-    );
+  // Rotate text phrases every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhraseIndex((prevIndex) => (prevIndex + 1) % phrases.length);
+    }, 3000); // Change phrase every 3 seconds
+    return () => clearInterval(interval); // Cleanup on component unmount
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  if (!user || profiles.length === 0) {
+    return <div>Loading profiles...</div>;
+  }
 
-  // Handle registration
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const registeredUser = userCredential.user;
-      setUser(registeredUser);
-
-      // Save additional user info to Firestore
-      const userDocRef = doc(firestore, "users", registeredUser.uid);
-      await setDoc(userDocRef, {
-        name,
-        age,
-        interests: interests.split(',').map(interest => interest.trim()), // Convert to array
-        description,
-        techNiche,
-        imageUrl // Save image URL after upload
-      });
-
-      console.log("User registered and additional info saved!");
-    } catch (error) {
-      console.error("Registration error:", error.message);
-    }
-  };
+  const currentProfile = profiles[currentIndex];
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <h1 className="text-4xl mb-8">Register</h1>
-      <form onSubmit={handleRegister} className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-        {/* Email and Password Fields */}
-        <div className="mb-4">
-          <label className="block text-gray-700">Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
-            required
-          />
-        </div>
+    <div className="min-h-screen relative overflow-hidden flex flex-col">
+      {/* Background animation */}
+      <div className="area absolute top-0 left-0 w-full h-full z-[-1]">
+        <ul className="circles">
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ul>
+      </div>
 
-        {/* Drag-and-Drop Image Upload */}
-        <div {...getRootProps()} className={`mb-4 p-4 border-dashed border-2 rounded-lg text-center ${isDragActive ? 'border-blue-500' : 'border-gray-300'}`}>
-          <input {...getInputProps()} />
-          {uploading ? (
-            <p>Uploading image...</p>
-          ) : isDragActive ? (
-            <p>Drop the file here...</p>
-          ) : (
-            <p>Drag and drop an image here, or click to select one</p>
-          )}
-        </div>
-        {imageUrl && <img src={imageUrl} alt="Uploaded profile" className="rounded-full h-32 w-32 mx-auto mb-4" />}
+      <header className="w-full text-center py-8">
+        <h2 className="text-5xl md:text-7xl font-extrabold mt-4">
+          <span className="text-black">SyncUp:</span> <span className="text-violet-400">{phrases[phraseIndex]}</span>
+        </h2>
+      </header>
 
-        {/* Additional User Info Fields */}
-        <div className="mb-4">
-          <label className="block text-gray-700">Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
-            required
-          />
+      <section className="flex flex-col items-center justify-center flex-grow text-center p-8 text-black">
+        <p className="text-lg mb-8">Click the arrows to navigate.</p>
+        <div className="relative w-full max-w-lg h-[620px]">
+          <button
+            onClick={() => setCurrentIndex((prevIndex) => (prevIndex - 1 + profiles.length) % profiles.length)}
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white text-black p-3 rounded-full focus:outline-none"
+            disabled={profiles.length === 1}
+          >
+            ←
+          </button>
+          <div className="p-8 bg-white text-black rounded-lg shadow-lg h-full flex flex-col justify-between">
+            <div>
+              <img
+                src={currentProfile.imageUrl}
+                alt={currentProfile.name}
+                className="rounded-full h-32 w-32 mx-auto mb-4"
+              />
+              <h2 className="text-3xl font-bold mb-4">{currentProfile.name}</h2>
+              <p className="text-lg mb-4">{currentProfile.description}</p>
+              <p className="text-lg mb-4">{`Age: ${currentProfile.age}`}</p>
+              <p className="text-lg mb-4">{`Interests: ${
+                Array.isArray(currentProfile.interests)
+                  ? currentProfile.interests.map((interest) => interest.charAt(0).toUpperCase() + interest.slice(1)).join(", ")
+                  : "No interests provided"
+              }`}</p>
+              <p className="text-lg mb-4">{`Tech Niche: ${currentProfile.techNiche || "No tech niche provided"}`}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setCurrentIndex((prevIndex) => (prevIndex + 1) % profiles.length)}
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white text-black p-3 rounded-full focus:outline-none"
+            disabled={profiles.length === 1}
+          >
+            →
+          </button>
         </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Age</label>
-          <input
-            type="number"
-            value={age}
-            onChange={(e) => setAge(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Interests (comma-separated)</label>
-          <input
-            type="text"
-            value={interests}
-            onChange={(e) => setInterests(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Description</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Tech Niche</label>
-          <input
-            type="text"
-            value={techNiche}
-            onChange={(e) => setTechNiche(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
-            required
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hoverHere’s the continuation of the previous implementation of the drag-and-drop image upload and user registration form:
-
-```jsx
-          hover:bg-blue-600"
-        >
-          Register
-        </button>
-      </form>
+      </section>
     </div>
   );
 }
