@@ -12,7 +12,14 @@ import { db } from "../../lib/firebase";
 import { useChatStore } from "../../lib/chatStore";
 import { useUserStore } from "../../lib/userStore";
 import upload from "../../lib/upload";
-import { format } from "timeago.js";
+import { formatDistanceToNow } from 'date-fns';
+
+const timeago = (timestamp) => {
+  // Convert timestamp to Date object if it's not already
+  const date = timestamp instanceof Date ? timestamp : timestamp.toDate();
+  return formatDistanceToNow(date, { addSuffix: true });
+};
+
 
 const Chat = () => {
   const [chat, setChat] = useState();
@@ -25,13 +32,15 @@ const Chat = () => {
 
   const { currentUser } = useUserStore();
   const { chatId, user, isCurrentUserBlocked, isReceiverBlocked } =
-    useChatStore();
+      useChatStore();
 
   const endRef = useRef(null);
 
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chat.messages]);
+  useEffect(() => {//diff
+    if (endRef.current && chat && chat.messages) {
+      endRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chat?.messages]);
 
   useEffect(() => {
     const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
@@ -59,9 +68,7 @@ const Chat = () => {
 
   const handleSend = async () => {
     if (text === "") return;
-
     let imgUrl = null;
-
     try {
       if (img.file) {
         imgUrl = await upload(img.file);
@@ -75,10 +82,9 @@ const Chat = () => {
           ...(imgUrl && { img: imgUrl }),
         }),
       });
-
       const userIDs = [currentUser.id, user.id];
 
-      userIDs.forEach(async (id) => {
+      for (const id of userIDs) {
         const userChatsRef = doc(db, "userchats", id);
         const userChatsSnapshot = await getDoc(userChatsRef);
 
@@ -86,115 +92,121 @@ const Chat = () => {
           const userChatsData = userChatsSnapshot.data();
 
           const chatIndex = userChatsData.chats.findIndex(
-            (c) => c.chatId === chatId
+              (c) => c.chatId === chatId
           );
 
           userChatsData.chats[chatIndex].lastMessage = text;
           userChatsData.chats[chatIndex].isSeen =
-            id === currentUser.id ? true : false;
+              id === currentUser.id ? true : false;
           userChatsData.chats[chatIndex].updatedAt = Date.now();
 
           await updateDoc(userChatsRef, {
             chats: userChatsData.chats,
           });
         }
-      });
+      }
     } catch (err) {
       console.log(err);
-    } finally{
-    setImg({
-      file: null,
-      url: "",
-    });
+    } finally {
+      setImg({
+        file: null,
+        url: "",
+      });
+      setText("");
+    }
+  };
 
-    setText("");
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSend();
     }
   };
 
   return (
-    <div className="chat">
-      <div className="top">
-        <div className="user">
-          <img src={user?.avatar || "./avatar.png"} alt="" />
-          <div className="texts">
-            <span>{user?.username}</span>
-            <p>Lorem ipsum dolor, sit amet.</p>
+      <div className="chat">
+        <div className="top">
+          <div className="user">
+            <img src={user?.avatar || "./avatar.png"} alt="" />
+            <div className="texts">
+              <span>{user?.username}</span>
+              <p>Made with love.</p>
+            </div>
+          </div>
+          <div className="icons">
+            <img src="./phone.png" alt="" />
+            <img src="./video.png" alt="" />
+            <img src="./info.png" alt="" />
           </div>
         </div>
-        <div className="icons">
-          <img src="./phone.png" alt="" />
-          <img src="./video.png" alt="" />
-          <img src="./info.png" alt="" />
+        <div className="center">
+          {chat?.messages?.map((message, index) => (
+              <div
+                  className={
+                    message.senderId === currentUser?.id ? "message own " : "message other"
+                  }
+                  key={index}
+              >
+                <div className="texts">
+                  {message.img && <img src={message.img} alt="" />}
+                  <p>{message.text}</p>
+                  <span>{timeago(message.createdAt)}</span>
+                </div>
+              </div>
+          ))}
+          {img.url && (
+              <div className="message own">
+                <div className="texts">
+                  <img src={img.url} alt="" />
+                </div>
+              </div>
+          )}
+          <div ref={endRef}></div>
         </div>
-      </div>
-      <div className="center">
-        {chat?.messages?.map((message) => (
-          <div
-            className={
-              message.senderId === currentUser?.id ? "message own" : "message"
-            }
-            key={message?.createAt}
+        <div className="bottom">
+          <div className="icons bottomIcons">
+            <label htmlFor="file">
+              <img src="./img.png" alt="" />
+            </label>
+            <input
+                type="file"
+                id="file"
+                style={{ display: "none" }}
+                onChange={handleImg}
+            />
+            <img src="./camera.png" alt="" />
+            <img src="./mic.png" alt="" />
+          </div>
+          <input className="sendInput"
+                 type="text"
+                 placeholder={
+                   isCurrentUserBlocked || isReceiverBlocked
+                       ? "You cannot send a message"
+                       : "Type a message..."
+                 }
+                 value={text}
+                 onChange={(e) => setText(e.target.value)}
+                 onKeyDown={handleKeyDown}
+                 disabled={isCurrentUserBlocked || isReceiverBlocked}
+          />
+          <div className="emoji">
+            <img
+                src="./emoji.png"
+                alt=""
+                onClick={() => setOpen((prev) => !prev)}
+            />
+            <div className="picker">
+              <EmojiPicker open={open} onEmojiClick={handleEmoji} />
+            </div>
+          </div>
+          <button
+              className="sendButton"
+              onClick={handleSend}
+              disabled={isCurrentUserBlocked || isReceiverBlocked}
           >
-            <div className="texts">
-              {message.img && <img src={message.img} alt="" />}
-              <p>{message.text}</p>
-              <span>{format(message.createdAt.toDate())}</span>
-            </div>
-          </div>
-        ))}
-        {img.url && (
-          <div className="message own">
-            <div className="texts">
-              <img src={img.url} alt="" />
-            </div>
-          </div>
-        )}
-        <div ref={endRef}></div>
-      </div>
-      <div className="bottom">
-        <div className="icons">
-          <label htmlFor="file">
-            <img src="./img.png" alt="" />
-          </label>
-          <input
-            type="file"
-            id="file"
-            style={{ display: "none" }}
-            onChange={handleImg}
-          />
-          <img src="./camera.png" alt="" />
-          <img src="./mic.png" alt="" />
+            Send
+          </button>
         </div>
-        <input
-          type="text"
-          placeholder={
-            isCurrentUserBlocked || isReceiverBlocked
-              ? "You cannot send a message"
-              : "Type a message..."
-          }
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          disabled={isCurrentUserBlocked || isReceiverBlocked}
-        />
-        <div className="emoji">
-          <img
-            src="./emoji.png"
-            alt=""
-            onClick={() => setOpen((prev) => !prev)}
-          />
-          <div className="picker">
-            <EmojiPicker open={open} onEmojiClick={handleEmoji} />
-          </div>
-        </div>
-        <button
-          className="sendButton"
-          onClick={handleSend}
-          disabled={isCurrentUserBlocked || isReceiverBlocked}
-        >
-          Send
-        </button>
       </div>
-    </div>
   );
 };
 
