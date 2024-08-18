@@ -5,6 +5,7 @@ import { firestore, storage } from '../services/firebase'; // Import Firestore a
 import { doc, setDoc } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"; // Import Storage functions
 import { useDropzone } from 'react-dropzone';
+import { useRouter } from 'next/navigation'; // Import the useRouter hook
 
 export default function NewPage() {
   const [user, setUser] = useState(null);
@@ -20,6 +21,7 @@ export default function NewPage() {
   const [loading, setLoading] = useState(false); // To track registration process
 
   const auth = getAuth();
+  const router = useRouter(); // Initialize the useRouter hook
 
   // Check if the user is authenticated
   useEffect(() => {
@@ -31,7 +33,7 @@ export default function NewPage() {
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [auth]);
 
   // Function to handle file upload
   const onDrop = useCallback((acceptedFiles) => {
@@ -61,7 +63,7 @@ export default function NewPage() {
         });
       }
     );
-  }, []);
+  }, [storage]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
@@ -86,6 +88,9 @@ export default function NewPage() {
       });
 
       console.log("User registered and additional info saved!");
+
+      // Redirect to the users' page after successful registration
+      router.push('/newpage'); // Use the router to navigate to the users' page
     } catch (error) {
       console.error("Registration error:", error.message);
     } finally {
