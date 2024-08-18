@@ -3,11 +3,15 @@ import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { fetchUserProfiles } from '../services/profileService'; 
 import { useRouter } from 'next/navigation'; 
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { EffectCoverflow, Navigation } from 'swiper/modules';  // Correctly import Swiper modules
+import 'swiper/css';  // Core Swiper styles
+import 'swiper/css/effect-coverflow';  // Effect Coverflow styles
+import 'swiper/css/navigation';  // Navigation module styles
 
 export default function NewPage() {
   const [user, setUser] = useState(null);
   const [profiles, setProfiles] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [phraseIndex, setPhraseIndex] = useState(0); // Track rotating text index
   const auth = getAuth();
   const router = useRouter();
@@ -46,72 +50,73 @@ export default function NewPage() {
   }, []);
 
   if (!user || profiles.length === 0) {
-    return <div>Loading profiles...</div>;
+    return React.createElement('div', null, 'Loading profiles...');
   }
 
-  const currentProfile = profiles[currentIndex];
-
-  return (
-    <div className="min-h-screen relative overflow-hidden flex flex-col">
-      {/* Background animation */}
-      <div className="area absolute top-0 left-0 w-full h-full z-[-1]">
-        <ul className="circles">
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
-      </div>
-
-      <header className="w-full text-center py-8">
-        <h2 className="text-5xl md:text-7xl font-extrabold mt-4">
-          <span className="text-black">SyncUp:</span> <span className="text-violet-400">{phrases[phraseIndex]}</span>
-        </h2>
-      </header>
-
-      <section className="flex flex-col items-center justify-center flex-grow text-center p-8 text-black">
-        <p className="text-lg mb-8">Click the arrows to navigate.</p>
-        <div className="relative w-full max-w-lg h-[620px]">
-          <button
-            onClick={() => setCurrentIndex((prevIndex) => (prevIndex - 1 + profiles.length) % profiles.length)}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white text-black p-3 rounded-full focus:outline-none"
-            disabled={profiles.length === 1}
-          >
-            ←
-          </button>
-          <div className="p-8 bg-white text-black rounded-lg shadow-lg h-full flex flex-col justify-between">
-            <div>
-              <img
-                src={currentProfile.imageUrl}
-                alt={currentProfile.name}
-                className="rounded-full h-32 w-32 mx-auto mb-4"
-              />
-              <h2 className="text-3xl font-bold mb-4">{currentProfile.name}</h2>
-              <p className="text-lg mb-4">{currentProfile.description}</p>
-              <p className="text-lg mb-4">{`Age: ${currentProfile.age}`}</p>
-              <p className="text-lg mb-4">{`Interests: ${
-                Array.isArray(currentProfile.interests)
-                  ? currentProfile.interests.map((interest) => interest.charAt(0).toUpperCase() + interest.slice(1)).join(", ")
-                  : "No interests provided"
-              }`}</p>
-              <p className="text-lg mb-4">{`Tech Niche: ${currentProfile.techNiche || "No tech niche provided"}`}</p>
-            </div>
-          </div>
-          <button
-            onClick={() => setCurrentIndex((prevIndex) => (prevIndex + 1) % profiles.length)}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white text-black p-3 rounded-full focus:outline-none"
-            disabled={profiles.length === 1}
-          >
-            →
-          </button>
-        </div>
-      </section>
-    </div>
+  return React.createElement(
+    'div',
+    { className: 'min-h-screen relative overflow-hidden flex flex-col' },
+    React.createElement('div', { className: 'area absolute top-0 left-0 w-full h-full z-[-1]' },
+      React.createElement('ul', { className: 'circles' }, 
+        Array.from({ length: 10 }).map((_, idx) => React.createElement('li', { key: idx }))
+      )
+    ),
+    React.createElement(
+      'header',
+      { className: 'w-full text-center py-8' },
+      React.createElement(
+        'h2',
+        { className: 'text-5xl md:text-7xl font-extrabold mt-4' },
+        React.createElement('span', { className: 'text-black' }, 'SyncUp: '),
+        React.createElement('span', { className: 'text-violet-400' }, phrases[phraseIndex])
+      )
+    ),
+    React.createElement(
+      'section',
+      { className: 'flex flex-col items-center justify-center flex-grow text-center p-8 text-black' },
+      React.createElement('p', { className: 'text-lg mb-8' }, 'Click the arrows to navigate.'),
+      React.createElement(
+        'div',
+        { className: 'relative w-full max-w-lg h-[620px]' },
+        React.createElement(Swiper, {
+          modules: [EffectCoverflow, Navigation],  // Pass EffectCoverflow module
+          navigation: true,  // Enable navigation
+          effect: 'coverflow',  // Use coverflow effect
+          grabCursor: true,
+          centeredSlides: true,
+          slidesPerView: 1,
+          loop: true,
+          coverflowEffect: {
+            rotate: 50,
+            stretch: 0,
+            depth: 100,
+            modifier: 1,
+            slideShadows: true,
+          },
+          spaceBetween: 50,
+          children: profiles.map((profile, index) => React.createElement(
+            SwiperSlide, { key: profile.id || index },
+            React.createElement(
+              'div',
+              { className: 'p-8 bg-white text-black rounded-lg shadow-lg h-full flex flex-col justify-between' },
+              React.createElement('img', {
+                src: profile.imageUrl,
+                alt: profile.name,
+                className: 'rounded-full h-32 w-32 mx-auto mb-4'
+              }),
+              React.createElement('h2', { className: 'text-3xl font-bold mb-4' }, profile.name),
+              React.createElement('p', { className: 'text-lg mb-4' }, profile.description),
+              React.createElement('p', { className: 'text-lg mb-4' }, `Age: ${profile.age}`),
+              React.createElement('p', { className: 'text-lg mb-4' }, `Interests: ${
+                Array.isArray(profile.interests)
+                  ? profile.interests.map(interest => interest.charAt(0).toUpperCase() + interest.slice(1)).join(', ')
+                  : 'No interests provided'
+              }`),
+              React.createElement('p', { className: 'text-lg mb-4' }, `Tech Niche: ${profile.techNiche || 'No tech niche provided'}`)
+            )
+          ))
+        })
+      )
+    )
   );
 }
