@@ -114,7 +114,7 @@ const ChatList = () => {
         </div>
       ))}
 
-      {addMode && <AddUser />}
+      {addMode && <AddUser onClose={() => setAddMode(false)} />}
     </div>
   );
 };

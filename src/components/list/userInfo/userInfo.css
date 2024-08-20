@@ -27,4 +27,32 @@
       cursor: pointer;
     }
   }
+  /* videoPopup.css */
+  .popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%; /* Half of the screen width */
+    height: 100%; /* Adjust height as needed */
+    background-color: white;
+    z-index: 1000;
+  }
+
+  .popupContent {
+    position: relative;
+    height: 100%; /* Take full height of the popup */
+    padding: 20px;
+    background-color: #001;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+  }
 }

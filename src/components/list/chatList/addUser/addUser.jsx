@@ -15,7 +15,7 @@ import {
 import { useState } from "react";
 import { useUserStore } from "../../../../lib/userStore";
 
-const AddUser = () => {
+const AddUser = ({ onClose }) => {
   const [user, setUser] = useState(null);
 
   const { currentUser } = useUserStore();
@@ -74,22 +74,28 @@ const AddUser = () => {
     }
   };
 
+// Assuming `handleClose` is passed as a prop from the parent
+  const handleClose = () => {
+    onClose(); // Call the onClose prop when 'X' is clicked
+  };
+
   return (
-    <div className="addUser">
-      <form onSubmit={handleSearch}>
-        <input type="text" placeholder="Username" name="username" />
-        <button>Search</button>
-      </form>
-      {user && (
-        <div className="user">
-          <div className="detail">
-            <img src={user.avatar || "./avatar.png"} alt="" />
-            <span>{user.username}</span>
-          </div>
-          <button onClick={handleAdd}>Add User</button>
-        </div>
-      )}
-    </div>
+      <div className="addUser">
+        <button className="closeButton" onClick={handleClose}>X</button>
+        <form onSubmit={handleSearch}>
+          <input type="text" placeholder="Username" name="username"/>
+          <button>Search</button>
+        </form>
+        {user && (
+            <div className="user">
+              <div className="detail">
+                <img src={user.avatar || "./avatar.png"} alt=""/>
+                <span>{user.username}</span>
+              </div>
+              <button onClick={handleAdd}>Add User</button>
+            </div>
+        )}
+      </div>
   );
 };
 
