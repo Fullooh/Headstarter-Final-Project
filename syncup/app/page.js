@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState, useCallback } from 'react';
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
-import { firestore, storage } from '../services/firebase'; // Import Firestore and Storage
+import { firestore, storage } from './services/firebase'; // Import Firestore and Storage
 import { doc, setDoc } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"; // Import Storage functions
 import { useDropzone } from 'react-dropzone';
