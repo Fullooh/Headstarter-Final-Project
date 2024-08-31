@@ -121,13 +121,13 @@ export default function NewPage() {
                   <div className="flex justify-around mt-4">
                     <button
                       onClick={() => handleUserSwipe(profile.id, true)}
-                      className="bg-green-500 text-white p-2 rounded"
+                      className="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
                     >
                       Like
                     </button>
                     <button
                       onClick={() => handleUserSwipe(profile.id, false)}
-                      className="bg-red-500 text-white p-2 rounded"
+                      className="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
                     >
                       Dislike
                     </button>
