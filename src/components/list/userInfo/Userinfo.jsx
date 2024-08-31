@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import "./userInfo.css";
 import { useUserStore } from "../../../lib/userStore";
 import VideoPopup from "./syncup.jsx";
-import EditPopup from "./editType.jsx";
+import UserProfilePopup from "./editType.jsx";
 import {auth} from "../../../lib/firebase.js"; // Import the new component
 
 
@@ -38,7 +38,7 @@ const Userinfo = () => {
                 Logout
             </button>
             {showPopup && <VideoPopup onClose={() => setShowPopup(false)}/>}
-            {showEditPopup && <EditPopup onClose={() => setShowEditPopup(false)} />}
+            {showEditPopup && <UserProfilePopup onClose={() => setShowEditPopup(false)} />}
         </div>
     );
 }
