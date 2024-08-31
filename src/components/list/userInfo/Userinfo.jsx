@@ -2,28 +2,36 @@
 import React, { useState } from "react";
 import "./userInfo.css";
 import { useUserStore } from "../../../lib/userStore";
-import VideoPopup from "./syncup.jsx"; // Import the new component
+import VideoPopup from "./syncup.jsx";
+import {auth} from "../../../lib/firebase.js"; // Import the new component
+
 
 const Userinfo = () => {
-    const { currentUser } = useUserStore();
+    const { currentUser, resetChat } = useUserStore();
     const [showPopup, setShowPopup] = useState(false);
 
     const handleVideoClick = () => {
         setShowPopup(true);
     };
-
+    const handleLogout = () => {
+        auth.signOut();
+        resetChat()
+    };
     return (
         <div className='userInfo'>
             <div className="user">
-                <img src={currentUser.avatar || "./avatar.png"} alt="" />
+                <img src={currentUser.avatar || "./avatar.png"} alt=""/>
                 <h2>{currentUser.username}</h2>
             </div>
             <div className="icons">
-                <img src="./more.png" alt="" />
-                <img src="./video.png" alt="" onClick={handleVideoClick} />
-                <img src="./edit.png" alt="" />
+                <img src="./more.png" alt=""/>
+                <img src="./video.png" alt="" onClick={handleVideoClick}/>
+                <img src="./edit.png" alt=""/>
             </div>
-            {showPopup && <VideoPopup onClose={() => setShowPopup(false)} />}
+            <button className="logout" onClick={handleLogout}>
+                Logout
+            </button>
+            {showPopup && <VideoPopup onClose={() => setShowPopup(false)}/>}
         </div>
     );
 }
