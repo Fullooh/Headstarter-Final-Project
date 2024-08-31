@@ -1,24 +1,36 @@
 import React, { useState, useEffect } from "react";
-import "./userInfo.css"; // Assuming you create a separate CSS file for this component
-import { db } from "../../../lib/firebase"; // Ensure you import your Firestore instance correctly
-import { collection, getDocs } from "firebase/firestore";
+import "./userInfo.css"; // Make sure this path is correct
+import { db } from "../../../lib/firebase"; // Correct import of Firestore instance
+import { collection, doc, getDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 const VideoPopup = ({ onClose }) => {
-    const [userData, setUserData] = useState([]); // State to store fetched user data
+    const [userData, setUserData] = useState(null); // State to store the fetched user data
 
     useEffect(() => {
-        // Fetch data from Firestore when the component mounts
         const fetchUserData = async () => {
-            try {
-                const querySnapshot = await getDocs(collection(db, "UserInfo")); // Replace 'Messages' with your actual collection name
-                const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                setUserData(data); // Store fetched data in state
-            } catch (error) {
-                console.error("Error fetching data: ", error);
+            const auth = getAuth();
+            const user = auth.currentUser; // Get the current logged-in user
+
+            if (user) {
+                try {
+                    const userDoc = doc(db, "User", user.uid); // Ensure the collection name is correct
+                    const docSnapshot = await getDoc(userDoc);
+
+                    if (docSnapshot.exists()) {
+                        setUserData(docSnapshot.data()); // Set the user data if the document exists
+                    } else {
+                        console.log("No such document!");
+                    }
+                } catch (error) {
+                    console.error("Error fetching user data: ", error);
+                }
+            } else {
+                console.log("No user logged in");
             }
         };
 
-        fetchUserData(); // Call the fetch function
+        fetchUserData();
     }, []);
 
     return (
@@ -26,14 +38,12 @@ const VideoPopup = ({ onClose }) => {
             <div className="popupContent">
                 <span className="close" onClick={onClose}>&times;</span>
                 <h3>Video Call</h3>
-                {userData.length > 0 ? (
-                    userData.map(user => (
-                        <div key={user.id}>
-                            <p>Age: {user.age}</p>
-                            <p>Description: {user.description}</p>
-                            <p>Interests: {user.interests}</p>
-                        </div>
-                    ))
+                {userData ? (
+                    <div>
+                        <p>Age: {userData.age}</p>
+                        <p>Description: {userData.description}</p>
+                        <p>Interests: {userData.interests}</p>
+                    </div>
                 ) : (
                     <p>Loading user data...</p>
                 )}
