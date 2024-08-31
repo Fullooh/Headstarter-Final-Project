@@ -19,7 +19,6 @@ export default function NewPage() {
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
   const [dislikeLoading, setDislikeLoading] = useState(false);
-  const [darkMode, setDarkMode] = useState(false); // Dark mode state
   const auth = getAuth();
   const router = useRouter();
 
@@ -36,15 +35,6 @@ export default function NewPage() {
     });
     return () => unsubscribe();
   }, [auth, router]);
-
-  useEffect(() => {
-    // Load dark mode preference from local storage
-    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-    setDarkMode(savedDarkMode);
-
-    // Apply dark mode class to the document body
-    document.body.classList.toggle('dark', savedDarkMode);
-  }, []);
 
   const loadProfiles = async () => {
     try {
@@ -84,15 +74,6 @@ export default function NewPage() {
     }
   };
 
-  const toggleDarkMode = () => {
-    setDarkMode((prevMode) => {
-      const newMode = !prevMode;
-      localStorage.setItem('darkMode', newMode);
-      document.body.classList.toggle('dark', newMode);
-      return newMode;
-    });
-  };
-
   const closeModal = () => {
     setShowMatchModal(false);
   };
@@ -127,15 +108,7 @@ export default function NewPage() {
   }
 
   return (
-    <div className={`min-h-screen relative overflow-hidden flex flex-col ${darkMode ? 'dark' : ''}`}>
-      {/* Dark Mode Toggle Button */}
-      <button
-        onClick={toggleDarkMode}
-        className="absolute top-4 right-4 bg-gray-800 text-white dark:bg-gray-200 dark:text-black p-2 rounded"
-      >
-        {darkMode ? 'Light Mode' : 'Dark Mode'}
-      </button>
-
+    <div className="min-h-screen relative overflow-hidden flex flex-col">
       <div className="area absolute top-0 left-0 w-full h-full z-[-1]">
         <ul className="circles">
           {Array.from({ length: 10 }).map((_, idx) => <li key={idx} />)}
@@ -143,11 +116,11 @@ export default function NewPage() {
       </div>
       <header className="w-full text-center py-8">
         <h2 className="text-5xl md:text-7xl font-extrabold mt-4">
-          <span className="text-black dark:text-white">SyncUp: </span>
+          <span className="text-black">SyncUp: </span>
           <span className="text-violet-400">{phrases[phraseIndex]}</span>
         </h2>
       </header>
-      <section className="flex flex-col items-center justify-center flex-grow text-center p-8 text-black dark:text-white">
+      <section className="flex flex-col items-center justify-center flex-grow text-center p-8 text-black">
         <p className="text-lg mb-8">Click the arrows to navigate.</p>
         <div className="relative w-full max-w-lg h-[620px]">
           <Swiper
@@ -169,7 +142,7 @@ export default function NewPage() {
           >
             {profiles.map((profile, index) => (
               <SwiperSlide key={profile.id || index}>
-                <div className="p-8 bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg shadow-lg h-full flex flex-col justify-between">
+                <div className="p-8 bg-white text-black rounded-lg shadow-lg h-full flex flex-col justify-between">
                   <img
                     src={profile.imageUrl}
                     alt={profile.name}
@@ -223,12 +196,12 @@ export default function NewPage() {
 
       {showMatchModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg text-center">
-            <h2 className="text-4xl font-bold mb-4 dark:text-white">It's a Match!</h2>
-            <p className="text-lg mb-4 dark:text-gray-300">You and another user have liked each other!</p>
+          <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+            <h2 className="text-4xl font-bold mb-4">It's a Match!</h2>
+            <p className="text-lg mb-4">You and another user have liked each other!</p>
             <button
               onClick={closeModal}
-              className="bg-violet-500 text-white dark:bg-violet-700 px-4 py-2 rounded"
+              className="bg-violet-500 text-white px-4 py-2 rounded"
             >
               Close
             </button>
