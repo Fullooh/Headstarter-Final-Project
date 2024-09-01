@@ -60,4 +60,14 @@
       cursor: pointer;
     }
   }
+  .closeButton {
+    position: absolute; /* Adjust positioning as needed */
+    right: 10px; /* Distance from right */
+    top: 10px; /* Distance from top */
+    border: none; /* No border */
+    background: none; /* Transparent background */
+    cursor: pointer; /* Cursor appears as a pointer */
+    font-size: 16px; /* Size of the 'X' */
+    color: white;
+  }
 }
