@@ -3,13 +3,13 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from 'next/navigation';
-import { auth, firestore, storage } from '../app/services/firebase'; // Import necessary Firebase services
+import { auth, firestore, storage } from '../app/services/firebase';
 import { doc, setDoc } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useDropzone } from 'react-dropzone';
 
 export default function LandingPage() {
-  const [isLogin, setIsLogin] = useState(true); // Toggle between login and register
+  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -26,7 +26,7 @@ export default function LandingPage() {
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
-    setError(null); // Reset error on toggle
+    setError(null);
   };
 
   const handleLogin = async (e) => {
@@ -92,125 +92,125 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          {isLogin ? 'Login to SyncUp' : 'Register for SyncUp'}
-        </h2>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        <form onSubmit={isLogin ? handleLogin : handleRegister}>
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 font-bold mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
-              required
-            />
-          </div>
-          <div className="mb-6">
-            <label htmlFor="password" className="block text-gray-700 font-bold mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
-              required
-            />
-          </div>
-          {!isLogin && (
-            <>
-              <div {...onDrop.getRootProps()} className="mb-4 p-4 border-dashed border-2 rounded-lg text-center">
-                <input {...onDrop.getInputProps()} />
-                {uploading ? (
-                  <p>Uploading image...</p>
-                ) : (
-                  <p>Drag and drop an image here, or click to select one</p>
-                )}
-              </div>
-              {imageUrl && <img src={imageUrl} alt="Uploaded profile" className="rounded-full h-32 w-32 mx-auto mb-4" />}
-              <div className="mb-4">
-                <label className="block text-gray-700">Name</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Age</label>
-                <input
-                  type="number"
-                  value={age}
-                  onChange={(e) => setAge(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Interests (comma-separated)</label>
-                <input
-                  type="text"
-                  value={interests}
-                  onChange={(e) => setInterests(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Description</label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Tech Niche</label>
-                <input
-                  type="text"
-                  value={techNiche}
-                  onChange={(e) => setTechNiche(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded"
-                  required
-                />
-              </div>
-            </>
-          )}
-          <button
-            type="submit"
-            className="w-full bg-violet-500 text-white py-2 rounded hover:bg-violet-700 flex justify-center items-center"
-            disabled={loading}
-          >
-            {loading ? (
+    <div className="h-screen w-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl p-4 m-4">
+        <div className="bg-white dark:bg-gray-900 border border-transparent border-20 rounded-2xl shadow-lg p-10">
+          <h1 className="text-5xl font-bold text-center dark:text-gray-400 mb-6">
+            {isLogin ? 'Log in' : 'Register'}
+          </h1>
+          {error && <p className="text-red-500 mb-4">{error}</p>}
+          <form onSubmit={isLogin ? handleLogin : handleRegister} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-lg dark:text-gray-400 mb-2">Email</label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg dark:bg-indigo-700 dark:text-gray-300"
+                placeholder="Email"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="block text-lg dark:text-gray-400 mb-2">Password</label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg dark:bg-indigo-700 dark:text-gray-300"
+                placeholder="Password"
+                required
+              />
+            </div>
+            {!isLogin && (
               <>
-                <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                </svg>
-                {isLogin ? 'Logging in...' : 'Registering...'}
+                <div {...onDrop.getRootProps()} className="border-dashed border-2 border-gray-300 rounded-lg p-4 text-center mb-4">
+                  <input {...onDrop.getInputProps()} />
+                  {uploading ? <p>Uploading image...</p> : <p>Drag and drop an image here, or click to select one</p>}
+                </div>
+                {imageUrl && <img src={imageUrl} alt="Uploaded profile" className="rounded-full h-32 w-32 mx-auto mb-4" />}
+                <div className="mb-4">
+                  <label className="block text-gray-700">Name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700">Age</label>
+                  <input
+                    type="number"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700">Interests (comma-separated)</label>
+                  <input
+                    type="text"
+                    value={interests}
+                    onChange={(e) => setInterests(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700">Description</label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700">Tech Niche</label>
+                  <input
+                    type="text"
+                    value={techNiche}
+                    onChange={(e) => setTechNiche(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    required
+                  />
+                </div>
               </>
-            ) : (
-              isLogin ? 'Login' : 'Register'
             )}
-          </button>
-        </form>
-        <p className="mt-4 text-center">
-          {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
-          <button onClick={toggleForm} className="text-violet-500 hover:underline">
-            {isLogin ? 'Register here' : 'Login here'}
-          </button>
-        </p>
+            <button
+              type="submit"
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 rounded-lg hover:scale-105 transition-transform duration-300 ease-in-out"
+              disabled={loading}
+            >
+              {loading ? 'Processing...' : isLogin ? 'Login' : 'Register'}
+            </button>
+          </form>
+          <div className="text-center mt-4">
+            <p className="text-sm">
+              {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
+              <button onClick={toggleForm} className="text-blue-400 hover:underline">
+                {isLogin ? 'Sign Up' : 'Log In'}
+              </button>
+            </p>
+          </div>
+          <div className="text-gray-500 text-center text-sm mt-4">
+            <p>
+              By signing in, you agree to our
+              <a className="text-blue-400 hover:underline" href="#">
+                Terms
+              </a>
+              and
+              <a className="text-blue-400 hover:underline" href="#">
+                Privacy Policy
+              </a>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
