@@ -83,7 +83,7 @@ export default function LandingPage() {
         imageUrl
       });
 
-      router.push('/newpage');
+      router.push('/login');
     } catch (error) {
       setError(error.message);
     } finally {
