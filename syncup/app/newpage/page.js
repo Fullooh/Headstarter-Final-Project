@@ -132,7 +132,7 @@ export default function NewPage() {
             slidesPerView={1}
             loop
             coverflowEffect={{
-              rotate: 50
+              rotate: 50,
               stretch: 0,
               depth: 100,
               modifier: 1,
