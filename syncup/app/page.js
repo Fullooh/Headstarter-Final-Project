@@ -1,217 +1,166 @@
-"use client";
-
-import React, { useState } from 'react';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+'use client';
+import React, { useEffect, useState } from 'react';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { fetchUserProfiles } from './services/profileService';
 import { useRouter } from 'next/navigation';
-import { auth, firestore, storage } from '../app/services/firebase';
-import { doc, setDoc } from "firebase/firestore";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { useDropzone } from 'react-dropzone';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { EffectCoverflow, Navigation } from 'swiper/modules';
+import { handleSwipe, loadMatches } from './services/userService';
 
-export default function LandingPage() {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
-  const [name, setName] = useState('');
-  const [age, setAge] = useState('');
-  const [interests, setInterests] = useState('');
-  const [description, setDescription] = useState('');
-  const [techNiche, setTechNiche] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
-  const [uploading, setUploading] = useState(false);
-  const [loading, setLoading] = useState(false);
+import 'swiper/css';
+import 'swiper/css/effect-coverflow';
+import 'swiper/css/navigation';
 
+export default function NewPage() {
+  const [user, setUser] = useState(null);
+  const [profiles, setProfiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [showMatchModal, setShowMatchModal] = useState(false);
+  const [likeLoading, setLikeLoading] = useState(false);
+  const [dislikeLoading, setDislikeLoading] = useState(false);
+  const auth = getAuth();
   const router = useRouter();
 
-  const toggleForm = () => {
-    setIsLogin(!isLogin);
-    setError(null);
-  };
+  const phrases = ["Team Up", "Code Together", "Conquer the Future"];
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+        loadProfiles();
+      } else {
+        router.push('/register');
+      }
+    });
+    return () => unsubscribe();
+  }, [auth, router]);
+
+  const loadProfiles = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push('/newpage');
+      const fetchedProfiles = await fetchUserProfiles();
+      setProfiles(fetchedProfiles);
     } catch (error) {
-      setError(error.message);
-    }
-  };
-
-  const onDrop = useDropzone({
-    onDrop: (acceptedFiles) => {
-      const file = acceptedFiles[0];
-      if (!file) return;
-
-      setUploading(true);
-
-      const storageRef = ref(storage, `profile_images/${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {},
-        (error) => {
-          console.error("Error uploading file:", error);
-          setUploading(false);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setImageUrl(downloadURL);
-            setUploading(false);
-          });
-        }
-      );
-    }
-  });
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const registeredUser = userCredential.user;
-
-      const userDocRef = doc(firestore, "users", registeredUser.uid);
-      await setDoc(userDocRef, {
-        name,
-        age,
-        interests: interests.split(',').map(interest => interest.trim()),
-        description,
-        techNiche,
-        imageUrl
-      });
-
-      router.push('/newpage');
-    } catch (error) {
-      setError(error.message);
+      console.error("Error fetching profiles:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="h-screen w-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl p-4 m-4">
-        <div className="bg-white dark:bg-gray-900 border border-transparent border-20 rounded-2xl shadow-lg p-10">
-          <h1 className="text-5xl font-bold text-center dark:text-gray-400 mb-6">
-            {isLogin ? 'Log in' : 'Register'}
-          </h1>
-          {error && <p className="text-red-500 mb-4">{error}</p>}
-          <form onSubmit={isLogin ? handleLogin : handleRegister} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-lg dark:text-gray-400 mb-2">Email</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg dark:bg-indigo-700 dark:text-gray-300"
-                placeholder="Email"
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-lg dark:text-gray-400 mb-2">Password</label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg dark:bg-indigo-700 dark:text-gray-300"
-                placeholder="Password"
-                required
-              />
-            </div>
-            {!isLogin && (
-              <>
-                <div {...onDrop.getRootProps()} className="border-dashed border-2 border-gray-300 rounded-lg p-4 text-center mb-4">
-                  <input {...onDrop.getInputProps()} />
-                  {uploading ? <p>Uploading image...</p> : <p>Drag and drop an image here, or click to select one</p>}
-                </div>
-                {imageUrl && <img src={imageUrl} alt="Uploaded profile" className="rounded-full h-32 w-32 mx-auto mb-4" />}
-                <div className="mb-4">
-                  <label className="block text-gray-700">Name</label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded"
-                    required
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-700">Age</label>
-                  <input
-                    type="number"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded"
-                    required
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-700">Interests (comma-separated)</label>
-                  <input
-                    type="text"
-                    value={interests}
-                    onChange={(e) => setInterests(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded"
-                    required
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-700">Description</label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded"
-                    required
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-700">Tech Niche</label>
-                  <input
-                    type="text"
-                    value={techNiche}
-                    onChange={(e) => setTechNiche(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded"
-                    required
-                  />
-                </div>
-              </>
-            )}
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 rounded-lg hover:scale-105 transition-transform duration-300 ease-in-out"
-              disabled={loading}
-            >
-              {loading ? 'Processing...' : isLogin ? 'Login' : 'Register'}
-            </button>
-          </form>
-          <div className="text-center mt-4">
-            <p className="text-sm">
-              {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
-              <button onClick={toggleForm} className="text-blue-400 hover:underline">
-                {isLogin ? 'Sign Up' : 'Log In'}
-              </button>
-            </p>
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhraseIndex((prevIndex) => (prevIndex + 1) % phrases.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleUserSwipe = async (profileId, liked) => {
+    if (liked) {
+      setLikeLoading(true);
+    } else {
+      setDislikeLoading(true);
+    }
+    
+    try {
+      const isMatch = await handleSwipe(user.uid, profileId, liked);
+      if (isMatch) {
+        setShowMatchModal(true);
+      }
+    } catch (error) {
+      console.error("Error processing swipe:", error);
+    } finally {
+      setLikeLoading(false);
+      setDislikeLoading(false);
+    }
+  };
+
+  const closeModal = () => {
+    setShowMatchModal(false);
+  };
+
+  if (loading || !user) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div role="status" className="max-w-sm p-4 border border-gray-200 rounded shadow animate-pulse md:p-6 dark:border-gray-700">
+          <div className="flex items-center justify-center h-48 mb-4 bg-gray-300 rounded dark:bg-gray-700">
+            <svg className="w-10 h-10 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 20">
+              <path d="M14.066 0H7v5a2 2 0 0 1-2 2H0v11a1.97 1.97 0 0 0 1.934 2h12.132A1.97 1.97 0 0 0 16 18V2a1.97 1.97 0 0 0-1.934-2ZM10.5 6a1.5 1.5 0 1 1 0 2.999A1.5 1.5 0 0 1 10.5 6Zm2.221 10.515a1 1 0 0 1-.858.485h-8a1 1 0 0 1-.9-1.43L5.6 10.039a.978.978 0 0 1 .936-.57 1 1 0 0 1 .9.632l1.181 2.981.541-1a.945.945 0 0 1 .883-.522 1 1 0 0 1 .879.529l1.832 3.438a1 1 0 0 1-.031.988Z"/>
+              <path d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.98 2.98 0 0 0 .13 5H5Z"/>
+            </svg>
           </div>
-          <div className="text-gray-500 text-center text-sm mt-4">
-            <p>
-              By signing in, you agree to our
-              <a className="text-blue-400 hover:underline" href="#">
-                Terms
-              </a>
-              and
-              <a className="text-blue-400 hover:underline" href="#">
-                Privacy Policy
-              </a>
-            </p>
+          <div className="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-48 mb-4"></div>
+          <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
+          <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
+          <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700"></div>
+          <div className="flex items-center mt-4">
+            <svg className="w-10 h-10 me-3 text-gray-200 dark:text-gray-700" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 13a8.949 8.949 0 0 1-4.951-1.488A3.987 3.987 0 0 1 9 13h2a3.987 3.987 0 0 1 3.951 3.512A8.949 8.949 0 0 1 10 18Z"/>
+            </svg>
+            <div>
+              <div className="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-32 mb-2"></div>
+              <div className="w-48 h-2 bg-gray-200 rounded-full dark:bg-gray-700"></div>
+            </div>
           </div>
+          <span className="sr-only">Loading...</span>
         </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen relative overflow-hidden flex flex-col">
+      <div className="area absolute top-0 left-0 w-full h-full z-[-1]">
+        <ul className="circles">
+          {Array.from({ length: 10 }).map((_, idx) => <li key={idx} />)}
+        </ul>
+      </div>
+      <header className="w-full text-center py-8">
+        <h2 className="text-5xl md:text-7xl font-extrabold mt-4">
+          <span className="text-black">SyncUp: </span>
+          <span className="text-violet-400">{phrases[phraseIndex]}</span>
+        </h2>
+      </header>
+      
+      <div className="flex flex-row justify-center items-center">
+          <button className="w-[180px] mr-5 text-xl font-bold px-5 border-solid border-black border-2 rounded-xl hover:text-blue-800 hover:border-blue-800 hover:text-[1.2em]"><a href="login">Login/Register</a></button>
+          {/* <button className="text-xl font-bold px-5 border-solid border-black border-2 rounded-xl hover:text-blue-800 hover:border-blue-800 hover:text-[1.2em]"><a href="login">Register</a></button> */}
+      </div>
+      
+      <section className="flex flex-col items-center justify-center flex-grow text-center p-8 text-black">
+        <div className="w-[45%] h-38 bg-white border-solid border-[2.5px] border-[gray] p-5 bg-opacity-80 drop-shadow-lg rounded-xl mb-10">
+          <h2 className="text-2xl font-bold">Create</h2>
+          <span className="text-xl">Build a custom profile showcasing your skills and interests.</span>
+          </div>
+        <div className="w-[45%] h-38 bg-white border-solid border-[2.5px] border-[gray] p-5 bg-opacity-80 drop-shadow-lg rounded-xl mb-10">
+          <h2 className="text-2xl font-bold">Explore</h2>
+          <span className="text-xl">Browse through profiles to find your ideal teammate or partner.</span>
+          </div>
+        <div className="w-[45%] h-38 bg-white border-solid border-[2.5px] border-[gray] p-5 bg-opacity-80 drop-shadow-lg rounded-xl mb-10">
+          <h2 className="text-2xl font-bold">Connect</h2>
+          <span className="text-xl">Engage with users who share similar interests.</span>
+          </div>
+      </section>
+
+      <footer className="">
+            <div className="w-[100%] h-[20%] bg-violet-400 flex justify-center">
+            Â© 2024 SyncUp. All rights reserved.
+            </div>
+      </footer>
+
+      {showMatchModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+            <h2 className="text-4xl font-bold mb-4">It's a Match!</h2>
+            <p className="text-lg mb-4">You and another user have liked each other!</p>
+            <button
+              onClick={closeModal}
+              className="bg-violet-500 text-white px-4 py-2 rounded"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
