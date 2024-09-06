@@ -1,9 +1,11 @@
 import { useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import Chat from "./components/chat/Chat";
 import Detail from "./components/detail/Detail";
 import List from "./components/list/List";
 import Login from "./components/login/Login";
 import Notification from "./components/notification/Notification";
+import Profile from "./components/profile"; // Import your SyncUp component
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./lib/firebase";
 import { useUserStore } from "./lib/userStore";
@@ -26,18 +28,32 @@ const App = () => {
   if (isLoading) return <div className="loading">Loading...</div>;
 
   return (
-    <div className="container">
-      {currentUser ? (
-        <>
-          <List />
-          {chatId && <Chat />}
-          {chatId && <Detail />}
-        </>
-      ) : (
-        <Login />
-      )}
-      <Notification />
-    </div>
+      <Router>
+        <div className="container">
+          <Routes>
+            <Route path="/login" element={!currentUser ? <Login /> : <Navigate to="/sync-up" />} />
+            <Route
+                path="/sync-up"
+                element={currentUser ? <Profile /> : <Navigate to="/login" />}
+            />
+            <Route
+                path="/"
+                element={
+                  currentUser ? (
+                      <>
+                        <List />
+                        {chatId && <Chat />}
+                        {chatId && <Detail />}
+                      </>
+                  ) : (
+                      <Navigate to="/login" />
+                  )
+                }
+            />
+          </Routes>
+          <Notification />
+        </div>
+      </Router>
   );
 };
 
