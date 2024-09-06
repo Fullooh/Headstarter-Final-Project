@@ -7,13 +7,139 @@
 }
 
 body {
-  background-image: url("/bg.jpg");
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100vh;
   color: white;
+  overflow: hidden; /* Ensure no scrollbars appear */
+  background: linear-gradient(45deg, #020024, #090979, #00d4ff); /* Optionally use a gradient or remove this line */
+  position: relative; /* For positioning the moving circles */
 }
+
+/* Moving Circles Background */
+.area {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* Ensure the circles stay behind other content */
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+.circles {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.circles li {
+  position: absolute;
+  display: block;
+  list-style: none;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 0, 81, 0.987); /* Example: pinkish-red circles */
+  animation: animate 25s linear infinite;
+  bottom: -150px;
+  border-radius: 50%;
+}
+
+.circles li:nth-child(1) {
+  left: 25%;
+  width: 80px;
+  height: 80px;
+  animation-duration: 22s;
+  animation-delay: 0s;
+}
+
+.circles li:nth-child(2) {
+  left: 10%;
+  width: 100px;
+  height: 100px;
+  animation-duration: 18s;
+  animation-delay: 2s;
+}
+
+.circles li:nth-child(3) {
+  left: 70%;
+  width: 60px;
+  height: 60px;
+  animation-duration: 25s;
+  animation-delay: 4s;
+}
+
+.circles li:nth-child(4) {
+  left: 40%;
+  width: 90px;
+  height: 90px;
+  animation-duration: 28s;
+  animation-delay: 6s;
+}
+
+.circles li:nth-child(5) {
+  left: 65%;
+  width: 120px;
+  height: 120px;
+  animation-duration: 20s;
+  animation-delay: 8s;
+}
+
+.circles li:nth-child(6) {
+  left: 75%;
+  width: 110px;
+  height: 110px;
+  animation-duration: 22s;
+  animation-delay: 10s;
+}
+
+.circles li:nth-child(7) {
+  left: 35%;
+  width: 150px;
+  height: 150px;
+  animation-duration: 26s;
+  animation-delay: 12s;
+}
+
+.circles li:nth-child(8) {
+  left: 50%;
+  width: 25px;
+  height: 25px;
+  animation-duration: 17s;
+  animation-delay: 14s;
+}
+
+.circles li:nth-child(9) {
+  left: 20%;
+  width: 15px;
+  height: 15px;
+  animation-duration: 18s;
+  animation-delay: 16s;
+}
+
+.circles li:nth-child(10) {
+  left: 85%;
+  width: 75px;
+  height: 75px;
+  animation-duration: 20s;
+  animation-delay: 18s;
+}
+
+@keyframes animate {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-1000px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
 
 .container {
   width: 80vw;
