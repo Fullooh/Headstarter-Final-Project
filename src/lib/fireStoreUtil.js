@@ -9,7 +9,7 @@ export async function addDataToFireStore(data) {
     if (user) {
         try {
             // Set or update the document with the user's UID
-            await setDoc(doc(db, "User", user.uid), {
+            await setDoc(doc(db, "users", user.uid), {
                 age: data.age,
                 description: data.description,
                 interests: data.interests,

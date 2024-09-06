@@ -14,7 +14,7 @@ const VideoPopup = ({ onClose }) => {
 
             if (user) {
                 try {
-                    const userDoc = doc(db, "User", user.uid); // Ensure the collection name is correct
+                    const userDoc = doc(db, "users", user.uid); // Ensure the collection name is correct
                     const docSnapshot = await getDoc(userDoc);
 
                     if (docSnapshot.exists()) {
