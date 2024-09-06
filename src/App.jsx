@@ -31,9 +31,9 @@ const App = () => {
       <Router>
         <div className="container">
           <Routes>
-            <Route path="/login" element={!currentUser ? <Login /> : <Navigate to="/sync-up" />} />
+            <Route path="/login" element={!currentUser ? <Login /> : <Navigate to="/profile" />} />
             <Route
-                path="/sync-up"
+                path="/profile"
                 element={currentUser ? <Profile /> : <Navigate to="/login" />}
             />
             <Route
