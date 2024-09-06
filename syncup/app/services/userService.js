@@ -1,11 +1,10 @@
 // userService.js
-
-import { firestore } from './firebase';
+import { db } from './firebase'; // Import the initialized Firestore instance
 import { doc, getDoc, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 
 // Function to handle swipe action
 export const handleSwipe = async (userId, profileId, liked) => {
-  const userRef = doc(firestore, 'users', userId);
+  const userRef = doc(db, 'users', userId); // Use 'db' instead of 'firestore'
   const userDoc = await getDoc(userRef);
   let isMatch = false;
 
@@ -56,7 +55,7 @@ export const handleSwipe = async (userId, profileId, liked) => {
 const checkForMatch = async (userId, profileId, liked) => {
   if (!liked) return false;
 
-  const profileRef = doc(firestore, 'users', profileId);
+  const profileRef = doc(db, 'users', profileId); // Use 'db' instead of 'firestore'
   const profileDoc = await getDoc(profileRef);
 
   if (profileDoc.exists()) {
@@ -68,7 +67,7 @@ const checkForMatch = async (userId, profileId, liked) => {
         matches: arrayUnion(userId)
       });
 
-      await updateDoc(doc(firestore, 'users', userId), {
+      await updateDoc(doc(db, 'users', userId), {
         matches: arrayUnion(profileId)
       });
 
