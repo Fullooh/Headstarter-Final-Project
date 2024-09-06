@@ -1,9 +1,7 @@
 import React from 'react';
-import { useUserStore } from "../lib/userStore";
 import { useNavigate } from "react-router-dom";
 
 const NewPage = () => {
-    const { currentUser } = useUserStore();
     const navigate = useNavigate();
 
     const handleHomeButtonClick = () => {
@@ -14,17 +12,31 @@ const NewPage = () => {
         navigate('/profile');
     };
 
+    const handleLike = () => {
+        console.log('Liked!');
+        // Implement the like functionality here
+    };
+
+    const handleDislike = () => {
+        console.log('Disliked!');
+        // Implement the dislike functionality here
+    };
+
     return (
         <div className="profile-container">
             <h1>SyncUp</h1>
-            {currentUser ? (
-                <div>
-                    <p>Email: {currentUser.email}</p>
-                    {/* Add more user details as needed */}
+            {/* Centered 5x3 block for Tinder clone */}
+            <div className="central-block">
+                <img
+                    src={`https://via.placeholder.com/450x270?text=User+Photo`}
+                    alt="User"
+                    className="user-photo"
+                />
+                <div className="button-group">
+                    <button onClick={handleLike}>Like</button>
+                    <button onClick={handleDislike}>Dislike</button>
                 </div>
-            ) : (
-                <p>Loading user data...</p>
-            )}
+            </div>
 
             {/* Buttons at the bottom of the screen */}
             <div className="button-container">
@@ -34,11 +46,48 @@ const NewPage = () => {
 
             <style jsx>{`
                 .profile-container {
+                    display: flex; /* Use Flexbox instead of Grid */
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    height: 100vh; /* Full height of the viewport */
+                    padding: 50vh; /* Remove extra padding */
+                    text-align: center;
+                    position: relative;
+                }
+
+                .central-block {
+                    width: 500px;
+                    height: 900px;
                     display: flex;
                     flex-direction: column;
-                    justify-content: space-between;
-                    height: 100vh;
+                    justify-content: center;
+                    align-items: center;
+                    background-color: #333;
+                    border-radius: 15px;
                     padding: 20px;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                }
+
+                .user-photo {
+                    width: 100%;
+                    height: auto;
+                    margin-bottom: 10px;
+                    border-radius: 10px;
+                }
+
+                .button-group {
+                    display: flex;
+                    justify-content: space-between;
+                    width: 100%;
+                }
+
+                .button-group button {
+                    padding: 10px;
+                    font-size: 16px;
+                    cursor: pointer;
+                    margin: 5px;
+                    flex: 1;
                 }
 
                 .button-container {

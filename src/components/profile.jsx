@@ -10,8 +10,8 @@ const Profile = () => {
         navigate('/');
     };
 
-    const handleProfileButtonClick = () => {
-        navigate('/profile');
+    const handleSyncUpButtonClick = () => {
+        navigate('/NewPage');
     };
 
     return (
@@ -29,7 +29,7 @@ const Profile = () => {
             {/* Buttons at the bottom of the screen */}
             <div className="button-container">
                 <button onClick={handleHomeButtonClick}>Home</button>
-                <button onClick={handleProfileButtonClick}>Profile</button>
+                <button onClick={handleSyncUpButtonClick}>SyncUp</button>
             </div>
 
             <style jsx>{`
