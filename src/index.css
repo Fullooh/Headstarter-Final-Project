@@ -140,15 +140,16 @@ body {
   }
 }
 
-
 .container {
-  width: 80vw;
-  height: 90vh;
+  width: 100%; /* Full width */
+  max-width: 1200px; /* Limit maximum width */
+  height: 100vh; /* Full height */
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr; /* Create flexible columns for list, chat, and details */
+  gap: 20px;
   background-color: rgba(17, 25, 40, 0.75);
-  backdrop-filter: blur(19px) saturate(180%);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.125);
-  display: flex;
+  padding: 20px;
+  overflow-y: auto; /* Allow scrolling if content overflows */
 }
 
 .loading{
@@ -157,3 +158,16 @@ body {
   border-radius: 10px;
   background-color: rgba(17, 25, 40, 0.9);
 }
+
+/* Responsive layout for smaller screens */
+@media (max-width: 768px) {
+  .container {
+    grid-template-columns: 1fr; /* Single column layout for smaller screens */
+  }
+
+  .list, .chat, .detail {
+    flex: 1;
+    width: 100%;
+  }
+}
+
