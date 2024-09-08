@@ -3,17 +3,19 @@ import { useUserStore } from "../lib/userStore";
 import { addDataToFireStore } from "../lib/fireStoreUtil"; 
 import upload from "../lib/upload"; // Upload function to handle file uploads
 import { setDoc, doc } from 'firebase/firestore'; // Ensure you're using these for Firestore
+import { db } from '../lib/firebase'; // Assuming this is the Firestore instance
 
 const Profile = () => {
     const { currentUser } = useUserStore();
     const [avatar, setAvatar] = useState({
         file: null,
-        url: currentUser.avatar || "",
+        url: currentUser.avatar || "", // Preload current avatar if exists
     });
     const [description, setDescription] = useState(currentUser.description || '');
     const [interests, setInterests] = useState(currentUser.interests || '');
     const [age, setAge] = useState(currentUser.age || '');
 
+    // Handle the avatar image selection and preview
     const handleAvatar = (e) => {
         if (e.target.files[0]) {
             setAvatar({
@@ -23,53 +25,31 @@ const Profile = () => {
         }
     };
 
+    // Handle form submission (including avatar upload)
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // Upload the new avatar image (if selected)
-        let imgUrl = avatar.url;
-        if (avatar.file) {
-            imgUrl = await upload(avatar.file); // Upload the file and get the image URL
-        }
+        try {
+            // Upload the new avatar image (if selected)
+            let imgUrl = avatar.url;
+            if (avatar.file) {
+                imgUrl = await upload(avatar.file); // Upload the file and get the image URL
+            }
 
-        // Save the updated data (age, description, interests, avatar URL) to Firestore
-        const added = await addDataToFireStore({ 
-            age, 
-            description, 
-            interests, 
-            avatar: imgUrl // Save the new avatar URL
-        });
+            // Save the updated data (age, description, interests, avatar URL) to Firestore
+            const userRef = doc(db, "users", currentUser.id); // Reference to the user's Firestore document
+            await setDoc(userRef, {
+                age, 
+                description, 
+                interests, 
+                avatar: imgUrl // Save the new avatar URL or keep the old one if not updated
+            }, { merge: true }); // Use { merge: true } to update only the provided fields
 
-        if (added) {
             alert("Profile updated successfully!");
-        } else {
+        } catch (err) {
+            console.error("Error updating profile: ", err);
             alert("Failed to update profile. Please try again.");
         }
-
-        try {
-            const res = await createUserWithEmailAndPassword(auth, email, password);
-      
-            const imgUrl = await upload(avatar.file);
-      
-            await setDoc(doc(db, "users", res.user.uid), {
-              username,
-              email,
-              avatar: imgUrl,
-              id: res.user.uid,
-              blocked: [],
-            });
-      
-            await setDoc(doc(db, "userchats", res.user.uid), {
-              chats: [],
-            });
-      
-            toast.success("Account created! You can login now!");
-          } catch (err) {
-            console.log(err);
-            toast.error(err.message);
-          } finally {
-            setLoading(false);
-          }
     };
 
     return (
@@ -81,7 +61,7 @@ const Profile = () => {
                 <form onSubmit={handleSubmit}>
                     <div className="avatar">
                         <img src={avatar.url} alt="User avatar" style={{ width: "150px", height: "150px", borderRadius: "50%" }} />
-                        <input type="file" accept="image/*" onChange={handleAvatar} />
+                        <input type="file" id="file" accept="image/*" onChange={handleAvatar} />
                         <p>Choose a new avatar</p>
                     </div>
 
