@@ -64,7 +64,7 @@ const Profile = () => {
     };
 
     return (
-        <Container maxWidth="sm" sx={{ mt: 4 }}>
+        <Container maxWidth="sm" sx={{ mt: 4, overflowY: "scroll", scrollbarWidth: "none" }}>
             {/* Buttons at the top of the screen */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                 <Button variant="contained" color="primary" onClick={handleHomeButtonClick}>
