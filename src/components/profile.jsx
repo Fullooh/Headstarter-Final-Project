@@ -5,6 +5,7 @@ import upload from "../lib/upload"; // Upload function to handle file uploads
 import { setDoc, doc } from 'firebase/firestore'; // Ensure you're using these for Firestore
 import { db } from '../lib/firebase'; // Assuming this is the Firestore instance
 import { useNavigate } from "react-router-dom";
+import { Button, Box, TextField, Typography, Container, Card, CardContent, CardMedia } from '@mui/material';
 
 const Profile = () => {
     const { currentUser } = useUserStore();
@@ -63,112 +64,96 @@ const Profile = () => {
     };
 
     return (
-        <div className="profile-container">
+        <Container maxWidth="sm" sx={{ mt: 4 }}>
             {/* Buttons at the top of the screen */}
-            <div className="button-container">
-                <button onClick={handleHomeButtonClick}>Home</button>
-                <button onClick={handleSyncUpButtonClick}>SyncUp</button>
-            </div>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <Button variant="contained" color="primary" onClick={handleHomeButtonClick}>
+                    Home
+                </Button>
+                <Button variant="contained" color="secondary" onClick={handleSyncUpButtonClick}>
+                    SyncUp
+                </Button>
+            </Box>
 
-            <h1>User Profile</h1>
+            <Typography variant="h4" component="h1" align="center" gutterBottom>
+                User Profile
+            </Typography>
 
             {currentUser ? (
-                <div className="form-container">
+                <Card sx={{ p: 3, mt: 2 }}>
                     <form onSubmit={handleSubmit}>
-                        <div className="avatar">
-                            <img src={avatar.url} alt="User avatar" style={{ width: "150px", height: "150px", borderRadius: "50%" }} />
-                            <input type="file" id="file" accept="image/*" onChange={handleAvatar} />
-                            <p>Choose a new avatar</p>
-                        </div>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
+                            <CardMedia
+                                component="img"
+                                image={avatar.url}
+                                alt="User avatar"
+                                sx={{ width: 150, height: 150, borderRadius: '50%', mb: 2 }}
+                            />
+                            <Button variant="outlined" component="label" sx={{ mb: 1 }}>
+                                Choose a new avatar
+                                <input type="file" accept="image/*" hidden onChange={handleAvatar} />
+                            </Button>
+                        </Box>
 
-                        <div className='details'>
-                            <span>Username: </span>
-                            <input value={currentUser.username} disabled />
-                        </div>
-                        <div className='details'>
-                            <span>Email: </span>
-                            <input value={currentUser.email} disabled />
-                        </div>
-                        <div className='details'>
-                            <span>Interests: </span>
-                            <input value={interests} onChange={(e) => setInterests(e.target.value)} />
-                        </div>
-                        <div className='details'>
-                            <span>Age: </span>
-                            <input type='number' value={age} onChange={(e) => setAge(e.target.value)} />
-                        </div>
-                        <div className='details'>
-                            <span>Description: </span>
-                            <textarea value={description} onChange={(e) => setDescription(e.target.value)}></textarea>
-                        </div>
-
-                        <div className="details">
-                            <button type='submit'>Save Changes</button>
-                        </div>
+                        <Box sx={{ mb: 2 }}>
+                            <TextField
+                                label="Username"
+                                value={currentUser.username}
+                                fullWidth
+                                disabled
+                                variant="outlined"
+                            />
+                        </Box>
+                        <Box sx={{ mb: 2 }}>
+                            <TextField
+                                label="Email"
+                                value={currentUser.email}
+                                fullWidth
+                                disabled
+                                variant="outlined"
+                            />
+                        </Box>
+                        <Box sx={{ mb: 2 }}>
+                            <TextField
+                                label="Interests"
+                                value={interests}
+                                onChange={(e) => setInterests(e.target.value)}
+                                fullWidth
+                                variant="outlined"
+                            />
+                        </Box>
+                        <Box sx={{ mb: 2 }}>
+                            <TextField
+                                label="Age"
+                                type="number"
+                                value={age}
+                                onChange={(e) => setAge(e.target.value)}
+                                fullWidth
+                                variant="outlined"
+                            />
+                        </Box>
+                        <Box sx={{ mb: 2 }}>
+                            <TextField
+                                label="Description"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                multiline
+                                rows={4}
+                                fullWidth
+                                variant="outlined"
+                            />
+                        </Box>
+                        <Button type="submit" variant="contained" color="primary" fullWidth>
+                            Save Changes
+                        </Button>
                     </form>
-                </div>
+                </Card>
             ) : (
-                <p>Loading user data...</p>
+                <Typography align="center">Loading user data...</Typography>
             )}
-
-            <style jsx>{`
-            .profile-container {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                padding: 20px;
-                text-align: center;
-                position: relative;
-            }
-
-            .form-container {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                background-color: rgba(255, 255, 255, 0.1);
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            }
-
-            .avatar {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                margin-bottom: 20px;
-            }
-
-            .avatar img {
-                margin-bottom: 10px;
-            }
-
-            .details {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                margin-bottom: 10px;
-            }
-
-            .button-container {
-                width: 100%;
-                display: flex;
-                justify-content: space-around;
-                position: absolute;
-                top: 20px;
-            }
-
-            button {
-                padding: 10px 20px;
-                font-size: 16px;
-                cursor: pointer;
-            }
-        `}</style>
-        </div>
+        </Container>
     );
-
 };
 
 export default Profile;
+

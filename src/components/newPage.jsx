@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
+import { Button, Box, Typography, Card, CardMedia, CardActions, Container } from '@mui/material';
 
 const NewPage = () => {
     const navigate = useNavigate();
@@ -23,88 +24,60 @@ const NewPage = () => {
     };
 
     return (
-        <div className="profile-container">
-            <h1>SyncUp</h1>
-            {/* Centered 5x3 block for Tinder clone */}
-            <div className="central-block">
-                <img
-                    src={`https://via.placeholder.com/450x270?text=User+Photo`}
+        <Container maxWidth="sm" sx={{ textAlign: 'center', mt: 4 }}>
+            <Typography variant="h3" component="h1" gutterBottom>
+                SyncUp
+            </Typography>
+
+            {/* Centered block for Tinder clone */}
+            <Card sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#333', borderRadius: 2, p: 2, boxShadow: 3, mb: 4 }}>
+                <CardMedia
+                    component="img"
+                    image="https://via.placeholder.com/450x270?text=User+Photo"
                     alt="User"
-                    className="user-photo"
+                    sx={{ width: '100%', borderRadius: 2, mb: 2 }}
                 />
-                <div className="button-group">
-                    <button onClick={handleLike}>Like</button>
-                    <button onClick={handleDislike}>Dislike</button>
-                </div>
-            </div>
+                <CardActions sx={{ justifyContent: 'space-between', width: '100%' }}>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        onClick={handleLike}
+                        fullWidth
+                        sx={{ m: 1 }}
+                    >
+                        Like
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="error"
+                        onClick={handleDislike}
+                        fullWidth
+                        sx={{ m: 1 }}
+                    >
+                        Dislike
+                    </Button>
+                </CardActions>
+            </Card>
 
             {/* Buttons at the bottom of the screen */}
-            <div className="button-container">
-                <button onClick={handleHomeButtonClick}>Home</button>
-                <button onClick={handleProfileButtonClick}>Profile</button>
-            </div>
-
-            <style jsx>{`
-                .profile-container {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    height: 1000px;
-                    text-align: center;
-                    position: relative;
-                    left: 750px; /* Move the container to the right */
-                }
-
-                .central-block {
-                    width: 500px;
-                    height: 900px;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    background-color: #333;
-                    border-radius: 15px;
-                    padding: 20px;
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-                }
-
-                .user-photo {
-                    width: 100%;
-                    height: auto;
-                    margin-bottom: 10px;
-                    border-radius: 10px;
-                }
-
-                .button-group {
-                    display: flex;
-                    justify-content: space-between;
-                    width: 100%;
-                }
-
-                .button-group button {
-                    padding: 10px;
-                    font-size: 16px;
-                    cursor: pointer;
-                    margin: 5px;
-                    flex: 1;
-                }
-
-                .button-container {
-                    position: absolute;
-                    bottom: 80px;
-                    width: 100%;
-                    display: flex;
-                    justify-content: space-around;
-                }
-
-                button {
-                    padding: 10px 20px;
-                    font-size: 16px;
-                    cursor: pointer;
-                }
-            `}</style>
-        </div>
+            <Box sx={{ position: 'fixed', bottom: 40, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 2 }}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleHomeButtonClick}
+                >
+                    Home
+                </Button>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleProfileButtonClick}
+                >
+                    Profile
+                </Button>
+            </Box>
+        </Container>
     );
 }
+
 export default NewPage;
