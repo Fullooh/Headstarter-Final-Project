@@ -1,62 +1,30 @@
-import React from 'react';
-import { useUserStore } from "../lib/userStore";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 
-const NewPage = () => {
-    const { currentUser } = useUserStore();
-    const navigate = useNavigate();
-
-    const handleHomeButtonClick = () => {
-        navigate('/');
-    };
-
-    const handleProfileButtonClick = () => {
-        navigate('/profile');
-    };
-
-    return (
-        <div className="profile-container">
-            <h1>SyncUp</h1>
-            {currentUser ? (
-                <div>
-                    <p>Email: {currentUser.email}</p>
-                    {/* Add more user details as needed */}
-                </div>
-            ) : (
-                <p>Loading user data...</p>
-            )}
-
-            {/* Buttons at the bottom of the screen */}
-            <div className="button-container">
-                <button onClick={handleHomeButtonClick}>Home</button>
-                <button onClick={handleProfileButtonClick}>Profile</button>
-            </div>
-
-            <style jsx>{`
-                .profile-container {
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-between;
-                    height: 100vh;
-                    padding: 20px;
-                }
-
-                .button-container {
-                    position: absolute;
-                    bottom: 20px;
-                    width: 100%;
-                    display: flex;
-                    justify-content: space-around;
-                }
-
-                button {
-                    padding: 10px 20px;
-                    font-size: 16px;
-                    cursor: pointer;
-                }
-            `}</style>
+export default function ProfileBox() {
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-800">
+      <div className="bg-white shadow-lg rounded-lg p-8 max-w-sm w-full text-center">
+        <img
+          className="w-32 h-32 rounded-full mx-auto mb-4"
+          src="https://via.placeholder.com/150"
+          alt="Profile"
+        />
+        <h2 className="text-3xl font-bold mb-2">John Doe</h2>
+        <p className="text-gray-600 mb-4">Software Engineer | AI Enthusiast</p>
+        <p className="text-gray-800 mb-4">
+          Passionate about creating innovative solutions and learning new
+          technologies. Loves coding, problem-solving, and collaborating with
+          teams.
+        </p>
+        <div className="flex justify-around mt-4">
+          <button className="bg-teal-500 text-white py-2 px-4 rounded-lg hover:bg-teal-600">
+            Like
+          </button>
+          <button className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">
+            Dislike
+          </button>
         </div>
-    );
-};
-
-export default NewPage;
+      </div>
+    </div>
+  );
+}
