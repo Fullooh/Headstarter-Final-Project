@@ -1,26 +1,96 @@
-import React from 'react';
+//newPage.jsx
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { fetchMatchedUsers, handleSwipe } from '../lib/userService';
+import { fetchUserProfiles } from '../lib/profileService';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { EffectCoverflow, Navigation } from 'swiper/modules';
 import { Button, Box, Typography, Card, CardMedia, CardActions, Container } from '@mui/material';
+import 'swiper/css';
+import 'swiper/css/effect-coverflow';
+import 'swiper/css/navigation';
 
 const NewPage = () => {
+    const [user, setUser] = useState(null);
+    const [profiles, setProfiles] = useState([]);
+    const [matchedUsers, setMatchedUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [phraseIndex, setPhraseIndex] = useState(0);
+    const [showMatchModal, setShowMatchModal] = useState(false);
+    const [likeLoading, setLikeLoading] = useState(false);
+    const [dislikeLoading, setDislikeLoading] = useState(false);
+    const [showChat, setShowChat] = useState(false);
+    const [showMatches, setShowMatches] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
+    const auth = getAuth();
+    const phrases = ["Team Up", "Code Together", "Conquer the Future"];
 
-    const handleHomeButtonClick = () => {
-        navigate('/');
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                setUser(user);
+                loadProfiles();
+                loadMatchedUsers(user.uid);
+            } else {
+                navigate('/register');
+            }
+        });
+        return () => unsubscribe();
+    }, [auth, navigate]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setPhraseIndex((prevIndex) => (prevIndex + 1) % phrases.length);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
+
+
+    const loadProfiles = async () => {
+        try {
+            const fetchedProfiles = await fetchUserProfiles();
+            setProfiles(fetchedProfiles);
+        } catch (error) {
+            console.error("Error fetching profiles:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleProfileButtonClick = () => {
-        navigate('/profile');
+    const loadMatchedUsers = async (userId) => {
+        try {
+            const fetchedMatchedUsers = await fetchMatchedUsers(userId);
+            setMatchedUsers(fetchedMatchedUsers);
+        } catch (error) {
+            console.error("Error fetching matched users:", error);
+        }
     };
 
-    const handleLike = () => {
-        console.log('Liked!');
-        // Implement the like functionality here
+    const handleUserSwipe = async (profileId, liked) => {
+        if (liked) {
+            setLikeLoading(true);
+        } else {
+            setDislikeLoading(true);
+        }
+
+        try {
+            const isMatch = await handleSwipe(user.uid, profileId, liked);
+            if (isMatch) {
+                setShowMatchModal(true);
+                loadMatchedUsers(user.uid); // Reload matched users when a new match is found
+            }
+        } catch (error) {
+            console.error("Error processing swipe:", error);
+        } finally {
+            setLikeLoading(false);
+            setDislikeLoading(false);
+        }
     };
 
-    const handleDislike = () => {
-        console.log('Disliked!');
-        // Implement the dislike functionality here
+    const closeModal = () => {
+        setShowMatchModal(false);
     };
 
     return (
@@ -29,49 +99,104 @@ const NewPage = () => {
                 SyncUp
             </Typography>
 
-            {/* Centered block for Tinder clone */}
-            <Card sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#333', borderRadius: 2, p: 2, boxShadow: 3, mb: 4 }}>
-                <CardMedia
-                    component="img"
-                    image="https://via.placeholder.com/450x270?text=User+Photo"
-                    alt="User"
-                    sx={{ width: '100%', borderRadius: 2, mb: 2 }}
-                />
-                <CardActions sx={{ justifyContent: 'space-between', width: '100%' }}>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        onClick={handleLike}
-                        fullWidth
-                        sx={{ m: 1 }}
-                    >
-                        Like
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="error"
-                        onClick={handleDislike}
-                        fullWidth
-                        sx={{ m: 1 }}
-                    >
-                        Dislike
-                    </Button>
-                </CardActions>
-            </Card>
 
-            {/* Buttons at the bottom of the screen */}
+            {loading ? (
+                <Typography variant="h5">Loading...</Typography>
+            ) : (
+                <Swiper
+                    modules={[EffectCoverflow, Navigation]}
+                    navigation
+                    effect="coverflow"
+                    grabCursor
+                    centeredSlides
+                    slidesPerView={1}
+                    loop
+                    coverflowEffect={{
+                        rotate: 50,
+                        stretch: 0,
+                        depth: 100,
+                        modifier: 1,
+                        slideShadows: true,
+                    }}
+                    spaceBetween={50}
+                >
+                    {profiles.map((profile, index) => (
+                        <SwiperSlide key={profile.id || index}>
+                            <Card sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#333', borderRadius: 2, p: 2, boxShadow: 3, mb: 4 }}>
+                                <CardMedia
+                                    component="img"
+                                    image={profile.avatar || "https://via.placeholder.com/450x270?text=User+Photo"}
+                                    alt="User"
+                                    sx={{ width: '100%', borderRadius: 2, mb: 2 }}
+                                />
+                                <Typography variant="body1" sx={{ color: 'white', mb: 1 }}>
+                                    Name: {profile.username || "N/A"}
+                                </Typography>
+                                <Typography variant="body1" sx={{ color: 'white', mb: 1 }}>
+                                    Age: {profile.age || "N/A"}
+                                </Typography>
+                                <Typography variant="body1" sx={{ color: 'white', mb: 1 }}>
+                                    Interests: {Array.isArray(profile.interests) ? profile.interests.join(', ') : 'No interests'}
+                                </Typography>
+                                <Typography variant="body1" sx={{ color: 'white', mb: 2 }}>
+                                    Description: {profile.description || 'No description provided'}
+                                </Typography>
+
+                                <CardActions sx={{ justifyContent: 'space-between', width: '100%' }}>
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        onClick={() => handleUserSwipe(profile.id, true)}
+                                        fullWidth
+                                        sx={{ m: 1 }}
+                                        disabled={likeLoading || dislikeLoading}
+                                    >
+                                        {likeLoading ? "Processing..." : "Like"}
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        color="error"
+                                        onClick={() => handleUserSwipe(profile.id, false)}
+                                        fullWidth
+                                        sx={{ m: 1 }}
+                                        disabled={likeLoading || dislikeLoading}
+                                    >
+                                        {dislikeLoading ? "Processing..." : "Dislike"}
+                                    </Button>
+                                </CardActions>
+                            </Card>
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
+            )}
+
+            {showMatchModal && (
+                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                    <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+                        <h2 className="text-4xl font-bold mb-4">It's a Match!</h2>
+                        <p className="text-lg mb-4">You and another user have liked each other!</p>
+                        <Button
+                            onClick={closeModal}
+                            className="bg-violet-500 text-white px-4 py-2 rounded"
+                        >
+                            Close
+                        </Button>
+                    </div>
+                </div>
+            )}
+
             <Box sx={{ position: 'fixed', bottom: 40, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 2 }}>
                 <Button
                     variant="contained"
                     color="primary"
-                    onClick={handleHomeButtonClick}
+                    onClick={() => navigate('/')}
                 >
                     Home
                 </Button>
                 <Button
                     variant="contained"
                     color="primary"
-                    onClick={handleProfileButtonClick}
+                    onClick={() => navigate('/profile')}
                 >
                     Profile
                 </Button>
@@ -81,3 +206,4 @@ const NewPage = () => {
 }
 
 export default NewPage;
+
