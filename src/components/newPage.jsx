@@ -46,14 +46,14 @@ const NewPage = () => {
 
             <style jsx>{`
                 .profile-container {
-                    display: flex; /* Use Flexbox instead of Grid */
+                    display: flex;
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    height: 100vh; /* Full height of the viewport */
-                    padding: 50vh; /* Remove extra padding */
+                    height: 1000px;
                     text-align: center;
                     position: relative;
+                    left: 750px; /* Move the container to the right */
                 }
 
                 .central-block {
@@ -92,7 +92,7 @@ const NewPage = () => {
 
                 .button-container {
                     position: absolute;
-                    bottom: 20px;
+                    bottom: 80px;
                     width: 100%;
                     display: flex;
                     justify-content: space-around;
@@ -106,6 +106,5 @@ const NewPage = () => {
             `}</style>
         </div>
     );
-};
-
-export default NewPage;
+}
+    export default NewPage;
