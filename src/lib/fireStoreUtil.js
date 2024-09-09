@@ -1,3 +1,4 @@
+// used in profile.jsx
 import { db } from './firebase'; // Ensure the correct Firebase instance
 import { collection, doc, setDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";

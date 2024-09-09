@@ -4,13 +4,14 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDgX17H9xOE_0165mty96LRRiZZMuERgOU",
-  authDomain: "reactchat-cd3be.firebaseapp.com",
-  projectId: "reactchat-cd3be",
-  storageBucket: "reactchat-cd3be.appspot.com",
-  messagingSenderId: "93382141717",
-  appId: "1:93382141717:web:067dfdb88c103d8faeeb1c"
+  apiKey: "AIzaSyBgGGZDFQ047qfI87W3dWdIjJfESupnzn8",
+  authDomain: "syncup-dc91d.firebaseapp.com",
+  projectId: "syncup-dc91d",
+  storageBucket: "syncup-dc91d.appspot.com",
+  messagingSenderId: "825063025237",
+  appId: "1:825063025237:web:632e205982ac7a4bb0c2dc"
 };
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 

@@ -23,7 +23,6 @@ const Userinfo = () => {
 
     const handleLogout = () => {
         auth.signOut();
-        resetChat();
     };
 
     // Function to navigate to the profile

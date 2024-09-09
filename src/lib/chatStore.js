@@ -1,3 +1,4 @@
+//chatStore.js
 import { create } from "zustand";
 import { useUserStore } from "./userStore";
 

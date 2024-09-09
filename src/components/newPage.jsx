@@ -7,6 +7,9 @@ import { fetchUserProfiles } from '../lib/profileService';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectCoverflow, Navigation } from 'swiper/modules';
 import { Button, Box, Typography, Card, CardMedia, CardActions, Container } from '@mui/material';
+import { db } from "../lib/firebase"; // Adjust the import path as needed
+import { doc, updateDoc, arrayUnion, serverTimestamp, setDoc, collection } from "firebase/firestore";
+import { useUserStore } from "../lib/userStore";
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 import 'swiper/css/navigation';
@@ -14,7 +17,7 @@ import 'swiper/css/navigation';
 const NewPage = () => {
     const [user, setUser] = useState(null);
     const [profiles, setProfiles] = useState([]);
-    const [matchedUsers, setMatchedUsers] = useState([]);
+    const [matchedUser, setMatchedUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [phraseIndex, setPhraseIndex] = useState(0);
     const [showMatchModal, setShowMatchModal] = useState(false);
@@ -23,6 +26,7 @@ const NewPage = () => {
     const [showChat, setShowChat] = useState(false);
     const [showMatches, setShowMatches] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const { currentUser } = useUserStore(); // Hook to get the current user
     const navigate = useNavigate();
     const auth = getAuth();
     const phrases = ["Team Up", "Code Together", "Conquer the Future"];
@@ -32,7 +36,7 @@ const NewPage = () => {
             if (user) {
                 setUser(user);
                 loadProfiles();
-                loadMatchedUsers(user.uid);
+                //loadMatchedUsers(user.uid);
             } else {
                 navigate('/register');
             }
@@ -59,14 +63,14 @@ const NewPage = () => {
         }
     };
 
-    const loadMatchedUsers = async (userId) => {
-        try {
-            const fetchedMatchedUsers = await fetchMatchedUsers(userId);
-            setMatchedUsers(fetchedMatchedUsers);
-        } catch (error) {
-            console.error("Error fetching matched users:", error);
-        }
-    };
+    // const loadMatchedUsers = async (userId) => {
+    //     try {
+    //         const fetchedMatchedUsers = await fetchMatchedUsers(userId);
+    //         setMatchedUsers(fetchedMatchedUsers);
+    //     } catch (error) {
+    //         console.error("Error fetching matched users:", error);
+    //     }
+    // };
 
     const handleUserSwipe = async (profileId, liked) => {
         if (liked) {
@@ -78,14 +82,52 @@ const NewPage = () => {
         try {
             const isMatch = await handleSwipe(user.uid, profileId, liked);
             if (isMatch) {
+                setMatchedUser(profileId); // Set the matched user's ID
                 setShowMatchModal(true);
-                loadMatchedUsers(user.uid); // Reload matched users when a new match is found
+                //loadMatchedUsers(user.uid); // Reload matched users when a new match is found
             }
         } catch (error) {
             console.error("Error processing swipe:", error);
         } finally {
             setLikeLoading(false);
             setDislikeLoading(false);
+        }
+    };
+    const handleAddUser = async () => {
+        if (!matchedUser) return;
+
+        const chatRef = collection(db, "chats");
+        const userChatsRef = collection(db, "userchats");
+
+        try {
+
+            const newChatRef = doc(chatRef);
+
+            await setDoc(newChatRef, {
+                createdAt: serverTimestamp(),
+                messages: [],
+            });
+
+            await updateDoc(doc(userChatsRef, matchedUser), {
+                chats: arrayUnion({
+                    chatId: newChatRef.id,
+                    lastMessage: "",
+                    receiverId: currentUser.id,
+                    updatedAt: Date.now(),
+                }),
+            });
+
+            await updateDoc(doc(userChatsRef, currentUser.id), {
+                chats: arrayUnion({
+                    chatId: newChatRef.id,
+                    lastMessage: "",
+                    receiverId: matchedUser,
+                    updatedAt: Date.now(),
+                }),
+            });
+            console.log("Working")
+        } catch (err) {
+            console.log("Error adding user:", err);
         }
     };
 
@@ -175,6 +217,12 @@ const NewPage = () => {
                     <div className="bg-white p-8 rounded-lg shadow-lg text-center">
                         <h2 className="text-4xl font-bold mb-4">It's a Match!</h2>
                         <p className="text-lg mb-4">You and another user have liked each other!</p>
+                        <Button
+                            onClick={handleAddUser}
+                            className="bg-green-500 text-white px-4 py-2 rounded mb-2"
+                        >
+                            Add User
+                        </Button>
                         <Button
                             onClick={closeModal}
                             className="bg-violet-500 text-white px-4 py-2 rounded"
