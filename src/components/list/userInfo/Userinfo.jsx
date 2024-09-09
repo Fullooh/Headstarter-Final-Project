@@ -13,17 +13,17 @@ const Userinfo = () => {
     const [showEditPopup, setShowEditPopup] = useState(false);
     const navigate = useNavigate(); // Initialize the navigate function
 
-    const handleVideoClick = () => {
+    /* const handleVideoClick = () => {
         setShowPopup(true);
     };
 
     const handleEditClick = () => {
         setShowEditPopup(true);
     };
+    */
 
     const handleLogout = () => {
         auth.signOut();
-        resetChat();
     };
 
     // Function to navigate to the profile
@@ -44,8 +44,8 @@ const Userinfo = () => {
             <div className="icons">
                 <img src="./more.png" alt="" onClick={handleProfileClick}/> {/* Route to Profile */}
                 <img src="./more.png" alt="" onClick={handleNewPageClick}/> {/* Route to Profile */}
-                <img src="./video.png" alt="" onClick={handleVideoClick}/>
-                <img src="./edit.png" alt="" onClick={handleEditClick}/>
+                {/* <img src="./video.png" alt="" onClick={handleVideoClick}/>
+                <img src="./edit.png" alt="" onClick={handleEditClick}/> */}
             </div>
             <button className="logout" onClick={handleLogout}>
                 Logout

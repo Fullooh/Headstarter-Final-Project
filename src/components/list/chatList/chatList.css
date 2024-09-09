@@ -71,3 +71,38 @@
     }
   }
 }
+
+.profile-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.profile-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: all 0.3s ease;
+}
+
+.close-btn {
+  position: absolute;
+  top: 0; /* Adjust to align with the profile picture */
+  left: -10px; /* Move it to the left of the profile image */
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  cursor: pointer;
+  visibility: hidden; /* Hidden by default */
+}
+
+/* Only show the close button when hovering over the profile image */
+.profile-container:hover .close-btn {
+  visibility: visible;
+}
