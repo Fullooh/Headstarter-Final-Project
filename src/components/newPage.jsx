@@ -15,12 +15,10 @@ const NewPage = () => {
 
     const handleLike = () => {
         console.log('Liked!');
-        // Implement the like functionality here
     };
 
     const handleDislike = () => {
         console.log('Disliked!');
-        // Implement the dislike functionality here
     };
 
     return (
@@ -81,3 +79,4 @@ const NewPage = () => {
 }
 
 export default NewPage;
+
