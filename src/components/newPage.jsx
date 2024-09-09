@@ -4,7 +4,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { fetchMatchedUsers, handleSwipe } from '../lib/userService';
 import { fetchUserProfiles } from '../lib/profileService';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { EffectCoverflow } from 'swiper/modules'; // Removed Navigation module
+import { EffectCoverflow } from 'swiper/modules';
 import { Button, Box, Typography, Card, CardMedia, CardActions, Container } from '@mui/material';
 import { db } from "../lib/firebase";
 import { doc, updateDoc, arrayUnion, serverTimestamp, setDoc, collection } from "firebase/firestore";
@@ -70,11 +70,12 @@ const NewPage = () => {
             const isMatch = await handleSwipe(user.uid, profileId, liked);
             if (isMatch) {
                 setMatchedUser(profileId);
-                setShowMatchModal(true);
-            }
-            // Swipe to the next profile
-            if (swiperRef.current) {
-                swiperRef.current.swiper.slideNext();
+                setShowMatchModal(true);  // Show the match modal if there's a match
+            } else {
+                // Swipe to the next profile only if there is no match
+                if (swiperRef.current) {
+                    swiperRef.current.swiper.slideNext();
+                }
             }
         } catch (error) {
             console.error("Error processing swipe:", error);
@@ -123,6 +124,11 @@ const NewPage = () => {
 
     const closeModal = () => {
         setShowMatchModal(false);
+
+        // Only swipe to the next profile if there was a match
+        if (matchedUser && swiperRef.current) {
+            swiperRef.current.swiper.slideNext();
+        }
     };
 
     const handleHomeButtonClick = () => {
