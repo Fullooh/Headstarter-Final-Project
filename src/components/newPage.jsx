@@ -1,18 +1,16 @@
-//newPage.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { fetchMatchedUsers, handleSwipe } from '../lib/userService';
 import { fetchUserProfiles } from '../lib/profileService';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { EffectCoverflow, Navigation } from 'swiper/modules';
+import { EffectCoverflow } from 'swiper/modules'; // Removed Navigation module
 import { Button, Box, Typography, Card, CardMedia, CardActions, Container } from '@mui/material';
 import { db } from "../lib/firebase";
 import { doc, updateDoc, arrayUnion, serverTimestamp, setDoc, collection } from "firebase/firestore";
 import { useUserStore } from "../lib/userStore";
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
-import 'swiper/css/navigation';
 
 const NewPage = () => {
     const [user, setUser] = useState(null);
@@ -23,23 +21,18 @@ const NewPage = () => {
     const [showMatchModal, setShowMatchModal] = useState(false);
     const [likeLoading, setLikeLoading] = useState(false);
     const [dislikeLoading, setDislikeLoading] = useState(false);
-    const [showChat, setShowChat] = useState(false);
-    const [showMatches, setShowMatches] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const { currentUser } = useUserStore(); // Hook to get the current user
+    const { currentUser } = useUserStore();
     const navigate = useNavigate();
     const auth = getAuth();
     const phrases = ["Team Up", "Code Together", "Conquer the Future"];
 
-    // Reference to Swiper component
-    const swiperRef = useRef(null);
+    const swiperRef = useRef(null); // Swiper reference
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
                 setUser(user);
-                loadProfiles();
-                // loadMatchedUsers(user.uid);
+                loadProfiles(user.uid);
             } else {
                 navigate('/register');
             }
@@ -54,10 +47,11 @@ const NewPage = () => {
         return () => clearInterval(interval);
     }, []);
 
-    const loadProfiles = async () => {
+    const loadProfiles = async (currentUserId) => {
         try {
             const fetchedProfiles = await fetchUserProfiles();
-            setProfiles(fetchedProfiles);
+            const filteredProfiles = fetchedProfiles.filter(profile => profile.id !== currentUserId);
+            setProfiles(filteredProfiles);
         } catch (error) {
             console.error("Error fetching profiles:", error);
         } finally {
@@ -136,7 +130,7 @@ const NewPage = () => {
     };
 
     const handleSyncUpButtonClick = () => {
-        navigate('/NewPage');
+        navigate('/Profile');
     };
 
     return (
@@ -158,9 +152,8 @@ const NewPage = () => {
                 <Typography variant="h5">Loading...</Typography>
             ) : (
                 <Swiper
-                    ref={swiperRef} // Attach the ref to Swiper
-                    modules={[EffectCoverflow, Navigation]}
-                    navigation
+                    ref={swiperRef} // Attach ref to Swiper
+                    modules={[EffectCoverflow]} // Removed Navigation module
                     effect="coverflow"
                     grabCursor
                     centeredSlides
@@ -206,7 +199,7 @@ const NewPage = () => {
                                         sx={{ m: 1 }}
                                         disabled={likeLoading || dislikeLoading}
                                     >
-                                        {likeLoading ? "Processing..." : "YaY"}
+                                        {likeLoading ? "Processing..." : "Yay"}
                                     </Button>
                                     <Button
                                         variant="contained"
@@ -216,7 +209,7 @@ const NewPage = () => {
                                         sx={{ m: 1 }}
                                         disabled={likeLoading || dislikeLoading}
                                     >
-                                        {dislikeLoading ? "Processing..." : "NaY"}
+                                        {dislikeLoading ? "Processing..." : "Nay"}
                                     </Button>
                                 </CardActions>
                             </Card>
@@ -245,23 +238,6 @@ const NewPage = () => {
                     </div>
                 </div>
             )}
-
-            {/*<Box sx={{ position: 'fixed', bottom: 40, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 2 }}>*/}
-            {/*    <Button*/}
-            {/*        variant="contained"*/}
-            {/*        color="primary"*/}
-            {/*        onClick={() => navigate('/')}*/}
-            {/*    >*/}
-            {/*        Home*/}
-            {/*    </Button>*/}
-            {/*    <Button*/}
-            {/*        variant="contained"*/}
-            {/*        color="primary"*/}
-            {/*        onClick={() => navigate('/profile')}*/}
-            {/*    >*/}
-            {/*        Profile*/}
-            {/*    </Button>*/}
-            {/*</Box>*/}
         </Container>
     );
 }
