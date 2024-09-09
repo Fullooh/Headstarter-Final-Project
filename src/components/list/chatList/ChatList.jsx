@@ -64,6 +64,23 @@ const ChatList = () => {
     }
   };
 
+  // Function to remove chat from the list
+  const removeChat = async (chatId) => {
+    const updatedChats = chats.filter((chat) => chat.chatId !== chatId);
+
+    setChats(updatedChats);
+
+    // Optionally update Firebase with the new list of chats
+    const userChatsRef = doc(db, "userchats", currentUser.id);
+    try {
+      await updateDoc(userChatsRef, {
+        chats: updatedChats,
+      });
+    } catch (err) {
+      console.log("Failed to update user chats:", err);
+    }
+  };
+
   const filteredChats = chats.filter((c) =>
       c.user.username.toLowerCase().includes(input.toLowerCase())
   );
@@ -86,6 +103,7 @@ const ChatList = () => {
               onClick={() => setAddMode((prev) => !prev)}
           />
         </div>
+
         {filteredChats.map((chat) => (
             <div
                 className="item"
@@ -95,14 +113,29 @@ const ChatList = () => {
                   backgroundColor: chat?.isSeen ? "transparent" : "#5183fe",
                 }}
             >
-              <img
-                  src={
-                    chat.user.blocked.includes(currentUser.id)
-                        ? "./avatar.png"
-                        : chat.user.avatar || "./avatar.png"
-                  }
-                  alt=""
-              />
+              {/* Container for the profile image and the close button */}
+              <div className="profile-container">
+                <img
+                    src={
+                      chat.user.blocked.includes(currentUser.id)
+                          ? "./avatar.png"
+                          : chat.user.avatar || "./avatar.png"
+                    }
+                    alt=""
+                    className="profile-img"
+                />
+                {/* Close button for removing chat */}
+                <div
+                    className="close-btn"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent triggering the handleSelect function
+                      removeChat(chat.chatId);
+                    }}
+                >
+                  ×
+                </div>
+              </div>
+
               <div className="texts">
             <span>
               {chat.user.blocked.includes(currentUser.id)

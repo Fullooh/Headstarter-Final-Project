@@ -1,5 +1,5 @@
 //newPage.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { fetchMatchedUsers, handleSwipe } from '../lib/userService';
@@ -7,7 +7,7 @@ import { fetchUserProfiles } from '../lib/profileService';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectCoverflow, Navigation } from 'swiper/modules';
 import { Button, Box, Typography, Card, CardMedia, CardActions, Container } from '@mui/material';
-import { db } from "../lib/firebase"; // Adjust the import path as needed
+import { db } from "../lib/firebase";
 import { doc, updateDoc, arrayUnion, serverTimestamp, setDoc, collection } from "firebase/firestore";
 import { useUserStore } from "../lib/userStore";
 import 'swiper/css';
@@ -31,12 +31,15 @@ const NewPage = () => {
     const auth = getAuth();
     const phrases = ["Team Up", "Code Together", "Conquer the Future"];
 
+    // Reference to Swiper component
+    const swiperRef = useRef(null);
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
                 setUser(user);
                 loadProfiles();
-                //loadMatchedUsers(user.uid);
+                // loadMatchedUsers(user.uid);
             } else {
                 navigate('/register');
             }
@@ -51,7 +54,6 @@ const NewPage = () => {
         return () => clearInterval(interval);
     }, []);
 
-
     const loadProfiles = async () => {
         try {
             const fetchedProfiles = await fetchUserProfiles();
@@ -63,15 +65,6 @@ const NewPage = () => {
         }
     };
 
-    // const loadMatchedUsers = async (userId) => {
-    //     try {
-    //         const fetchedMatchedUsers = await fetchMatchedUsers(userId);
-    //         setMatchedUsers(fetchedMatchedUsers);
-    //     } catch (error) {
-    //         console.error("Error fetching matched users:", error);
-    //     }
-    // };
-
     const handleUserSwipe = async (profileId, liked) => {
         if (liked) {
             setLikeLoading(true);
@@ -82,9 +75,12 @@ const NewPage = () => {
         try {
             const isMatch = await handleSwipe(user.uid, profileId, liked);
             if (isMatch) {
-                setMatchedUser(profileId); // Set the matched user's ID
+                setMatchedUser(profileId);
                 setShowMatchModal(true);
-                //loadMatchedUsers(user.uid); // Reload matched users when a new match is found
+            }
+            // Swipe to the next profile
+            if (swiperRef.current) {
+                swiperRef.current.swiper.slideNext();
             }
         } catch (error) {
             console.error("Error processing swipe:", error);
@@ -93,6 +89,7 @@ const NewPage = () => {
             setDislikeLoading(false);
         }
     };
+
     const handleAddUser = async () => {
         if (!matchedUser) return;
 
@@ -100,7 +97,6 @@ const NewPage = () => {
         const userChatsRef = collection(db, "userchats");
 
         try {
-
             const newChatRef = doc(chatRef);
 
             await setDoc(newChatRef, {
@@ -125,7 +121,7 @@ const NewPage = () => {
                     updatedAt: Date.now(),
                 }),
             });
-            console.log("Working")
+            console.log("Working");
         } catch (err) {
             console.log("Error adding user:", err);
         }
@@ -135,17 +131,34 @@ const NewPage = () => {
         setShowMatchModal(false);
     };
 
+    const handleHomeButtonClick = () => {
+        navigate('/');
+    };
+
+    const handleSyncUpButtonClick = () => {
+        navigate('/NewPage');
+    };
+
     return (
         <Container maxWidth="sm" sx={{ textAlign: 'center', mt: 4 }}>
             <Typography variant="h3" component="h1" gutterBottom>
                 SyncUp
             </Typography>
 
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <Button variant="contained" color="primary" onClick={handleHomeButtonClick}>
+                    Home
+                </Button>
+                <Button variant="contained" color="secondary" onClick={handleSyncUpButtonClick}>
+                    Profile
+                </Button>
+            </Box>
 
             {loading ? (
                 <Typography variant="h5">Loading...</Typography>
             ) : (
                 <Swiper
+                    ref={swiperRef} // Attach the ref to Swiper
                     modules={[EffectCoverflow, Navigation]}
                     navigation
                     effect="coverflow"
@@ -193,7 +206,7 @@ const NewPage = () => {
                                         sx={{ m: 1 }}
                                         disabled={likeLoading || dislikeLoading}
                                     >
-                                        {likeLoading ? "Processing..." : "Like"}
+                                        {likeLoading ? "Processing..." : "YaY"}
                                     </Button>
                                     <Button
                                         variant="contained"
@@ -203,7 +216,7 @@ const NewPage = () => {
                                         sx={{ m: 1 }}
                                         disabled={likeLoading || dislikeLoading}
                                     >
-                                        {dislikeLoading ? "Processing..." : "Dislike"}
+                                        {dislikeLoading ? "Processing..." : "NaY"}
                                     </Button>
                                 </CardActions>
                             </Card>
@@ -233,25 +246,24 @@ const NewPage = () => {
                 </div>
             )}
 
-            <Box sx={{ position: 'fixed', bottom: 40, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 2 }}>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => navigate('/')}
-                >
-                    Home
-                </Button>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => navigate('/profile')}
-                >
-                    Profile
-                </Button>
-            </Box>
+            {/*<Box sx={{ position: 'fixed', bottom: 40, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 2 }}>*/}
+            {/*    <Button*/}
+            {/*        variant="contained"*/}
+            {/*        color="primary"*/}
+            {/*        onClick={() => navigate('/')}*/}
+            {/*    >*/}
+            {/*        Home*/}
+            {/*    </Button>*/}
+            {/*    <Button*/}
+            {/*        variant="contained"*/}
+            {/*        color="primary"*/}
+            {/*        onClick={() => navigate('/profile')}*/}
+            {/*    >*/}
+            {/*        Profile*/}
+            {/*    </Button>*/}
+            {/*</Box>*/}
         </Container>
     );
 }
 
 export default NewPage;
-
