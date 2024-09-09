@@ -41,10 +41,10 @@ const Userinfo = () => {
                 <h2>{currentUser.username}</h2>
             </div>
             <div className="icons">
-                <img src="./more.png" alt="" onClick={handleProfileClick}/> {/* Route to Profile */}
-                <img src="./more.png" alt="" onClick={handleNewPageClick}/> {/* Route to Profile */}
-                <img src="./video.png" alt="" onClick={handleVideoClick}/>
-                <img src="./edit.png" alt="" onClick={handleEditClick}/>
+                <img src="./edit.png" alt="" onClick={handleProfileClick}/> {/* Route to Profile */}
+                <img src="./emoji.png" alt="" onClick={handleNewPageClick}/> {/* Route to Profile */}
+                {/*<img src="./video.png" alt="" onClick={handleVideoClick}/>*/}
+                {/*<img src="./edit.png" alt="" onClick={handleEditClick}/>*/}
             </div>
             <button className="logout" onClick={handleLogout}>
                 Logout
